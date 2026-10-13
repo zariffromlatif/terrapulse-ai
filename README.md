@@ -3,7 +3,7 @@
 > **The AI agent that turns financial-fraud evidence into an actionable, evidence-backed response.**  
 > *Google Cloud AI Builder Cup 2026 Submission*
 
-[![Tests](https://img.shields.io/badge/Tests-18%20Passed-success)](#verification--testing)
+[![Tests](https://img.shields.io/badge/Tests-27%20Passed-success)](#verification--testing)
 [![Benchmark](https://img.shields.io/badge/Benchmark-100%25%20Composite%20Score-brightgreen)](#eval-benchmark)
 [![Deployment](https://img.shields.io/badge/Google%20Cloud%20Run-Container%20Ready-blue)](#deployment)
 [![Python](https://img.shields.io/badge/Python-3.12%20%7C%203.13-blue.svg)](https://python.org)
@@ -177,7 +177,7 @@ gcloud run deploy proofpath-ai \
 │       ├── app.js            # Frontend logic, dynamic graph renderer, demo loaders
 │       └── style.css         # Responsive styling
 ├── sample_data/              # Realistic synthetic test cases (BD bKash & SG PayNow)
-├── tests/                    # 18 unit and integration tests (100% pass)
+├── tests/                    # 27 unit and integration tests (100% pass)
 ├── app.py                    # Streamlit dashboard
 ├── eval_benchmark.py         # Quantitative CLI benchmark runner
 ├── Dockerfile                # Google Cloud Run containerfile

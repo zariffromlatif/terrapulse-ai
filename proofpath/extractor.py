@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import logging
 import os
 import re
 from typing import Any, Dict, List, Optional
@@ -15,6 +16,8 @@ from proofpath.models import (
     ExtractedEntity,
     ExtractedTransaction,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def resolve_mime_type(filename: str, mime_type: Optional[str] = None) -> str:
@@ -47,11 +50,26 @@ class EvidenceExtractor:
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         self._client = None
-        if self.api_key:
+
+        # Check for Google Cloud Vertex AI ADC or explicit Vertex flag
+        use_vertex = bool(os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("GOOGLE_GENAI_USE_VERTEXAI"))
+        if use_vertex:
+            try:
+                from google import genai
+                project = os.getenv("GOOGLE_CLOUD_PROJECT")
+                location = os.getenv("GOOGLE_CLOUD_LOCATION", "asia-southeast1")
+                self._client = genai.Client(vertexai=True, project=project, location=location)
+                logger.info("Initialized Google Cloud Vertex AI ADC client (project=%s, location=%s)", project, location)
+            except Exception as e:
+                logger.error("Failed to initialize Google Cloud Vertex AI client: %s", e)
+                self._client = None
+        elif self.api_key:
             try:
                 from google import genai
                 self._client = genai.Client(api_key=self.api_key)
-            except Exception:
+                logger.info("Initialized Google GenAI client with API key.")
+            except Exception as e:
+                logger.error("Failed to initialize Google GenAI client: %s", e)
                 self._client = None
 
     def process_file_content(
@@ -80,8 +98,21 @@ class EvidenceExtractor:
                 if extracted_pdf_text:
                     text_content = extracted_pdf_text
                     is_text = True
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("Could not extract text from PDF '%s': %s", filename, e)
+
+        # Check image metadata (PNG tEXt chunks, PIL info) for embedded forensic text if available
+        if not text_content and (resolved_mime.startswith("image/") or filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp"))):
+            try:
+                from PIL import Image
+                with Image.open(io.BytesIO(content_bytes)) as img:
+                    for k in ("Description", "Comment", "ForensicText", "text", "description", "comment"):
+                        if k in img.info and isinstance(img.info[k], str) and img.info[k].strip():
+                            text_content = img.info[k].strip()
+                            is_text = True
+                            break
+            except Exception as e:
+                logger.debug("Image metadata inspection skipped for '%s': %s", filename, e)
 
         if not text_content:
             try:
@@ -96,7 +127,8 @@ class EvidenceExtractor:
                         is_text = True
                     else:
                         text_content = ""
-                except Exception:
+                except Exception as e:
+                    logger.debug("Latin-1 decoding failed for '%s': %s", filename, e)
                     text_content = ""
 
         # Attempt Gemini multimodal extraction if client is available
@@ -117,9 +149,8 @@ class EvidenceExtractor:
                     if override_type:
                         gemini_result.evidence_type = override_type
                     return gemini_result
-            except Exception:
-                # Fallback to local parsing on any API failure
-                pass
+            except Exception as e:
+                logger.warning("Gemini extraction failed for '%s': %s. Falling back to deterministic parsing.", filename, e)
 
         # Deterministic extraction fallback
         return self._extract_deterministic(
@@ -146,12 +177,13 @@ class EvidenceExtractor:
 
         prompt = (
             "You are an expert digital forensics investigator analyzing financial fraud evidence. "
-            "Examine this evidence carefully. Extract all structured facts including: "
-            "1. Evidence type (TRANSACTION_RECEIPT, CHAT_MESSAGE, VOICE_NOTE, CALL_LOG, EMAIL, PHISHING_PAGE, CONTRACT_DOCUMENT, OTHER). "
-            "2. Concise factual summary of what this document shows. "
-            "3. All timestamps mentioned. "
-            "4. Extracted entities (phone numbers, wallet accounts, bank accounts, domains, suspect names, platform names). "
-            "5. All financial transactions (transaction ID, amount, currency, timestamp, sender, sender account, recipient, recipient account, payment method, reference note). "
+            "Examine this evidence carefully. Extract all structured facts including:\n"
+            "1. Evidence type (TRANSACTION_RECEIPT, CHAT_MESSAGE, VOICE_NOTE, CALL_LOG, EMAIL, PHISHING_PAGE, CONTRACT_DOCUMENT, OTHER).\n"
+            "2. Concise factual summary of what this document shows.\n"
+            "3. All timestamps mentioned.\n"
+            "4. Extracted entities (phone numbers, wallet accounts, bank accounts, domains, suspect names, platform names).\n"
+            "5. All financial transactions (transaction ID, amount, currency, timestamp, sender, sender account, recipient, recipient account, payment method, reference note).\n"
+            "6. Forensic Coercion Analysis: Analyze psychological urgency, authority deception, fear appeals, isolation tactics, or false deadlines.\n"
             "Output strictly valid JSON conforming to this structure:\n"
             "{\n"
             '  "evidence_type": "TRANSACTION_RECEIPT",\n'
@@ -159,6 +191,14 @@ class EvidenceExtractor:
             '  "timestamps": ["2026-10-12T14:30:00"],\n'
             '  "entities": [{"entity_type": "phone_number", "value": "01712345678", "normalized_value": "+8801712345678", "role": "suspect", "confidence": 0.95}],\n'
             '  "transactions": [{"transaction_id": "TXN123", "amount": 25000.0, "currency": "BDT", "timestamp": "...", "sender": "...", "sender_account": "...", "recipient": "...", "recipient_account": "...", "payment_method": "bKash", "reference_note": "...", "confidence": 0.95}],\n'
+            '  "coercion_analysis": {\n'
+            '    "urgency_detected": true,\n'
+            '    "urgency_level": "HIGH",\n'
+            '    "authority_deception_detected": true,\n'
+            '    "coercion_tactics": ["immediate account freeze", "police warrant arrest threat"],\n'
+            '    "psychological_manipulation": ["artificial emergency", "fear appeal", "isolation from family/bank"],\n'
+            '    "forensic_rationale": "Suspect falsely impersonates central bank or police authorities to coerce immediate payment under duress."\n'
+            '  },\n'
             '  "confidence": 0.92\n'
             "}"
         )
@@ -177,8 +217,9 @@ class EvidenceExtractor:
                 )
                 contents.append(prompt)
 
+            model_name = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
             response = self._client.models.generate_content(
-                model="gemini-2.5-flash",
+                model=model_name,
                 contents=contents,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
@@ -226,6 +267,13 @@ class EvidenceExtractor:
                     )
                 )
 
+            coercion_data = data.get("coercion_analysis") or {}
+            metadata = {
+                "source": "gemini_multimodal",
+                "model": model_name,
+                "coercion_analysis": coercion_data,
+            }
+
             return EvidenceItem(
                 item_id="",
                 filename=filename,
@@ -238,8 +286,10 @@ class EvidenceExtractor:
                 timestamps_found=data.get("timestamps", []),
                 summary=data.get("summary", f"Extracted facts from {filename}"),
                 confidence=float(data.get("confidence", 0.9)),
+                metadata=metadata,
             )
-        except Exception:
+        except Exception as e:
+            logger.error("Error during Gemini extraction on '%s': %s", filename, e, exc_info=True)
             return None
 
     def _extract_deterministic(
@@ -499,6 +549,12 @@ class EvidenceExtractor:
         if entities:
             summary += f" Identified {len(entities)} relevant forensic entities."
 
+        coercion_info = self._analyze_coercion_heuristics(text_content)
+        metadata = {
+            "source": "deterministic_fallback",
+            "coercion_analysis": coercion_info,
+        }
+
         return EvidenceItem(
             item_id=item_id,
             filename=filename,
@@ -511,5 +567,65 @@ class EvidenceExtractor:
             timestamps_found=timestamp_matches[:5],
             summary=summary,
             confidence=0.90,
-            metadata={"source": "deterministic_fallback"},
+            metadata=metadata,
         )
+
+    def _analyze_coercion_heuristics(self, text: str) -> Dict[str, Any]:
+        """Deterministic forensic coercion heuristic analyzer for urgency and authority deception."""
+        if not text:
+            return {
+                "urgency_detected": False,
+                "urgency_level": "NONE",
+                "authority_deception_detected": False,
+                "coercion_tactics": [],
+                "psychological_manipulation": [],
+                "forensic_rationale": "No coercive patterns detected.",
+            }
+
+        lower = text.lower()
+        urgency_terms = [
+            "immediate", "immediately", "within 30 min", "urgent", "urgently",
+            "freeze your account", "account locked", "police case", "jail",
+            "terminate immediately", "last warning", "final notice", "arrest",
+        ]
+        authority_terms = [
+            "bangladesh bank", "police officer", "cid", "singapore police force",
+            "anti-scam centre", "monetary authority of singapore", "mas officer",
+            "high court", "dbs security officer", "bkash head office", "customs officer",
+            "fraud monitoring cell", "law enforcement",
+        ]
+
+        detected_urgency = [t for t in urgency_terms if t in lower]
+        detected_authority = [t for t in authority_terms if t in lower]
+
+        urgency_level = "NONE"
+        if len(detected_urgency) >= 2 or any(k in lower for k in ["arrest", "jail", "freeze", "locked", "within 30 min"]):
+            urgency_level = "HIGH"
+        elif len(detected_urgency) == 1:
+            urgency_level = "MEDIUM"
+
+        tactics: List[str] = []
+        manipulation: List[str] = []
+        if detected_urgency:
+            tactics.append("artificial urgency / ultimatum")
+            manipulation.append("fear appeal and time pressure")
+        if detected_authority:
+            tactics.append("institutional authority deception")
+            manipulation.append("authority intimidation and false legal liability")
+
+        rationale_parts = []
+        if detected_authority:
+            rationale_parts.append(f"Authority deception detected using institutional markers ({', '.join(detected_authority[:3])}).")
+        if detected_urgency:
+            rationale_parts.append(f"Psychological urgency pressure applied with threat triggers ({', '.join(detected_urgency[:3])}).")
+        if not rationale_parts:
+            rationale_parts.append("No active coercive threats identified in text content.")
+
+        return {
+            "urgency_detected": bool(detected_urgency),
+            "urgency_level": urgency_level,
+            "authority_deception_detected": bool(detected_authority),
+            "coercion_tactics": tactics,
+            "psychological_manipulation": manipulation,
+            "forensic_rationale": " ".join(rationale_parts),
+        }

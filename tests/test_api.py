@@ -18,6 +18,11 @@ def test_api_health(client):
     assert data["status"] == "healthy"
     assert data["service"] == "ProofPath AI"
 
+    # Verify static sample file serving
+    sample_res = client.get("/samples/bkash_transfer_slip.png")
+    assert sample_res.status_code == 200
+    assert len(sample_res.content) > 1000
+
 
 def test_api_case_analysis_and_downloads(client):
     file1 = ("threat_chat.txt", b"Pay BDT 12000 urgently to 01712345678 within 30 min", "text/plain")

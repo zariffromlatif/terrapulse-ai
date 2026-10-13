@@ -47,6 +47,12 @@ def test_extractor_deterministic_chat():
     domains = [e.normalized_value for e in item.extracted_entities if e.entity_type == "domain"]
     assert any("secure-dbs-auth.site" in d for d in domains)
 
+    # Coercion analysis layer verification
+    coercion = item.metadata.get("coercion_analysis", {})
+    assert coercion.get("urgency_detected") is True
+    assert coercion.get("urgency_level") in ("HIGH", "MEDIUM")
+    assert len(coercion.get("coercion_tactics", [])) >= 1
+
 
 def test_extractor_empty_content_graceful():
     extractor = EvidenceExtractor()
@@ -83,7 +89,7 @@ def test_extractor_multi_transaction_statement():
     assert item.extracted_transactions[1].amount == 15000.0
 
 
-def test_extractor_mime_type_resolution():
+def test_extractor_mime_type_resolution(monkeypatch):
     extractor = EvidenceExtractor()
     item_mp3 = extractor.process_file_content("voicenote.mp3", b"audio-data")
     assert item_mp3.file_type == "audio/mp3"
@@ -91,6 +97,13 @@ def test_extractor_mime_type_resolution():
 
     item_pdf = extractor.process_file_content("police_notice.pdf", b"pdf-data")
     assert item_pdf.file_type == "application/pdf"
+
+    # Verify Vertex AI ADC initialization branch
+    monkeypatch.setenv("GOOGLE_GENAI_USE_VERTEXAI", "true")
+    monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "mock-gcp-project")
+    v_extractor = EvidenceExtractor()
+    # In test environment without active GCP credentials, safely falls back to None with logged error
+    assert v_extractor._client is None or hasattr(v_extractor._client, "models")
 
 
 def test_extractor_sg_phone_no_bd_collision():

@@ -187,14 +187,23 @@
 
       <!-- Tab 7: Download Case Package -->
       <div id="tabDownloads" class="tab-content">
-        <div class="content-card" style="text-align: center; padding: 40px 20px;">
+        <div class="content-card" style="text-align: center; padding: 30px 20px;">
           <h3 style="margin-bottom: 12px;">📥 Download Complete Complaint-Ready Evidence Package</h3>
-          <p style="color: var(--text-muted); font-size: 13px; max-width: 600px; margin: 0 auto 24px auto;">
+          <p style="color: var(--text-muted); font-size: 13px; max-width: 600px; margin: 0 auto 20px auto;">
             Download an official court & bank ready packet including compiled PDF report, individual formal letters, SHA-256 evidence index manifest, and JSON payload.
           </p>
-          <div style="display: flex; justify-content: center; gap: 16px;">
+          <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 24px;">
             <a id="btnDownloadPdf" class="btn-primary" href="#" target="_blank">📄 Download PDF Dossier</a>
             <a id="btnDownloadZip" class="btn-primary" style="background:#059669;" href="#" target="_blank">📦 Download Complete ZIP Packet</a>
+          </div>
+
+          <!-- In-browser PDF preview iframe -->
+          <div id="pdfPreviewContainer" style="margin-top: 16px; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 14px; font-weight: 600; color: var(--cyan);">👁️ Live In-Browser Dossier Preview (Court & Bank Ready Report)</span>
+              <span id="pdfPreviewStatus" style="font-size: 12px; color: var(--text-muted);">Inspection Ready</span>
+            </div>
+            <iframe id="pdfPreviewIframe" src="about:blank" style="width: 100%; height: 750px; border: 1px solid var(--border-color); border-radius: 8px; background: #0f172a;" title="ProofPath AI Dossier PDF Preview"></iframe>
           </div>
         </div>
       </div>

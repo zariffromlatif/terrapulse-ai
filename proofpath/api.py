@@ -93,7 +93,7 @@ def get_case_pdf_endpoint(case_id: str):
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename=ProofPath_Dossier_{case_id}.pdf"},
+        headers={"Content-Disposition": f"inline; filename=ProofPath_Dossier_{case_id}.pdf"},
     )
 
 
@@ -123,6 +123,11 @@ def run_benchmark_endpoint():
 # Serve static web frontend
 if WEB_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(WEB_DIR)), name="static")
+
+# Serve authentic demo samples for multimodal ingestion
+SAMPLES_DIR = WEB_DIR / "samples"
+if SAMPLES_DIR.exists():
+    app.mount("/samples", StaticFiles(directory=str(SAMPLES_DIR)), name="samples")
 
 
 @app.get("/", response_class=HTMLResponse)

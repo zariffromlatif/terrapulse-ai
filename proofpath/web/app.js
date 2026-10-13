@@ -211,9 +211,17 @@ function renderResults(data) {
     compDiv.appendChild(card);
   });
 
-  // Download Links
+  // Download Links & In-Browser PDF Preview
   document.getElementById("btnDownloadPdf").href = `/api/cases/${data.case_id}/pdf`;
   document.getElementById("btnDownloadZip").href = `/api/cases/${data.case_id}/zip`;
+  const pdfIframe = document.getElementById("pdfPreviewIframe");
+  if (pdfIframe) {
+    pdfIframe.src = `/api/cases/${data.case_id}/pdf`;
+    const previewStatus = document.getElementById("pdfPreviewStatus");
+    if (previewStatus) {
+      previewStatus.textContent = `Case Dossier: ${data.case_id} • Loaded`;
+    }
+  }
 }
 
 // Copy to Clipboard
@@ -531,60 +539,103 @@ function drawGraphFrame(ctx, canvas) {
 }
 
 // Preloaded Demos
-function loadDemoCase(type) {
+async function loadDemoCase(type) {
   const formData = new FormData();
   if (type === 'BD') {
     document.getElementById("jurisdictionSelect").value = "BANGLADESH";
     document.getElementById("victimName").value = "Tanvir Hasan";
     document.getElementById("victimContact").value = "+8801712000000";
 
-    const chatContent = (
-      "Suspect: We are calling from Bangladesh Bank Fraud Monitoring Cell. " +
-      "Immediate action required! Your bKash account is linked to suspicious gambling transactions. " +
-      "Account will be locked within 30 min unless verified. " +
-      "Send emergency clearance fee of BDT 25,000 to verification desk at 01719998877 immediately. " +
-      "Time: 2026-10-12 11:30:00"
-    );
-    const receiptContent = (
-      "bKash Transaction Slip\n" +
-      "TrxID: BL9A2K9Z9X\n" +
-      "Amount: BDT 25,000.00\n" +
-      "To: 01719998877\n" +
-      "Date: 2026-10-12 11:45:00\n" +
-      "Status: Successful"
-    );
     formData.append("jurisdiction", "BANGLADESH");
     formData.append("victim_name", "Tanvir Hasan");
     formData.append("victim_contact", "+8801712000000");
-    formData.append("files", new Blob([chatContent], {type: "text/plain"}), "threat_chat_whatsapp.txt");
-    formData.append("files", new Blob([receiptContent], {type: "text/plain"}), "bkash_receipt_slip.txt");
+
+    let loadedBinary = false;
+    try {
+      const [chatRes, receiptRes] = await Promise.all([
+        fetch("/samples/whatsapp_threat_chat.png"),
+        fetch("/samples/bkash_transfer_slip.png"),
+      ]);
+      if (chatRes.ok && receiptRes.ok) {
+        const chatBlob = await chatRes.blob();
+        const receiptBlob = await receiptRes.blob();
+        formData.append("files", chatBlob, "whatsapp_threat_chat.png");
+        formData.append("files", receiptBlob, "bkash_transfer_slip.png");
+        loadedBinary = true;
+      }
+    } catch (err) {
+      console.warn("Could not fetch binary sample files, falling back to synthetic text", err);
+    }
+
+    if (!loadedBinary) {
+      const chatContent = (
+        "Suspect: We are calling from Bangladesh Bank Fraud Monitoring Cell. " +
+        "Immediate action required! Your bKash account is linked to suspicious gambling transactions. " +
+        "Account will be locked within 30 min unless verified. " +
+        "Send emergency clearance fee of BDT 25,000 to verification desk at 01719998877 immediately. " +
+        "Time: 2026-10-12 11:30:00"
+      );
+      const receiptContent = (
+        "bKash Transaction Slip\n" +
+        "TrxID: BL9A2K9Z9X\n" +
+        "Amount: BDT 25,000.00\n" +
+        "To: 01719998877\n" +
+        "Date: 2026-10-12 11:45:00\n" +
+        "Status: Successful"
+      );
+      formData.append("files", new Blob([chatContent], {type: "text/plain"}), "threat_chat_whatsapp.txt");
+      formData.append("files", new Blob([receiptContent], {type: "text/plain"}), "bkash_receipt_slip.txt");
+    }
   } else if (type === 'SG') {
     document.getElementById("jurisdictionSelect").value = "SINGAPORE";
     document.getElementById("victimName").value = "Rachel Lim";
     document.getElementById("victimContact").value = "+6598760000";
 
-    const chatContent = (
-      "[Telegram @recruit_vip_elena]\n" +
-      "Elena: Hi Rachel! Shopee VIP Affiliate Task Opportunity. " +
-      "Earn daily commission rebate 20% on product review tasks. " +
-      "Deposit SGD 1,500 to unlock vip level.\n" +
-      "PayNow to mobile +6591234567.\n" +
-      "Portal: http://sg-shopee-rebates.top/login\n" +
-      "Timestamp: 2026-10-11 14:00:00"
-    );
-    const receiptContent = (
-      "PayNow Transfer Confirmation\n" +
-      "Reference Number: FAST202610119882\n" +
-      "Amount: SGD 1,500.00\n" +
-      "To Mobile: +6591234567\n" +
-      "Date: 2026-10-11 14:15:00\n" +
-      "Status: Completed"
-    );
     formData.append("jurisdiction", "SINGAPORE");
     formData.append("victim_name", "Rachel Lim");
     formData.append("victim_contact", "+6598760000");
-    formData.append("files", new Blob([chatContent], {type: "text/plain"}), "telegram_job_offer.txt");
-    formData.append("files", new Blob([receiptContent], {type: "text/plain"}), "paynow_transfer_slip.txt");
+
+    let loadedBinary = false;
+    try {
+      const [chatRes, receiptRes, offerRes] = await Promise.all([
+        fetch("/samples/telegram_task_scam.png"),
+        fetch("/samples/paynow_transfer_slip.png"),
+        fetch("/samples/fake_employment_offer.pdf"),
+      ]);
+      if (chatRes.ok && receiptRes.ok && offerRes.ok) {
+        const chatBlob = await chatRes.blob();
+        const receiptBlob = await receiptRes.blob();
+        const offerBlob = await offerRes.blob();
+        formData.append("files", chatBlob, "telegram_task_scam.png");
+        formData.append("files", receiptBlob, "paynow_transfer_slip.png");
+        formData.append("files", offerBlob, "fake_employment_offer.pdf");
+        loadedBinary = true;
+      }
+    } catch (err) {
+      console.warn("Could not fetch binary sample files, falling back to synthetic text", err);
+    }
+
+    if (!loadedBinary) {
+      const chatContent = (
+        "[Telegram @recruit_vip_elena]\n" +
+        "Elena: Hi Rachel! Shopee VIP Affiliate Task Opportunity. " +
+        "Earn daily commission rebate 20% on product review tasks. " +
+        "Deposit SGD 1,500 to unlock vip level.\n" +
+        "PayNow to mobile +6591234567.\n" +
+        "Portal: http://sg-shopee-rebates.top/login\n" +
+        "Timestamp: 2026-10-11 14:00:00"
+      );
+      const receiptContent = (
+        "PayNow Transfer Confirmation\n" +
+        "Reference Number: FAST202610119882\n" +
+        "Amount: SGD 1,500.00\n" +
+        "To Mobile: +6591234567\n" +
+        "Date: 2026-10-11 14:15:00\n" +
+        "Status: Completed"
+      );
+      formData.append("files", new Blob([chatContent], {type: "text/plain"}), "telegram_job_offer.txt");
+      formData.append("files", new Blob([receiptContent], {type: "text/plain"}), "paynow_transfer_slip.txt");
+    }
   } else {
     // Backdated anomaly case
     document.getElementById("jurisdictionSelect").value = "BANGLADESH";
@@ -597,7 +648,7 @@ function loadDemoCase(type) {
     formData.append("files", new Blob([receiptContent], {type: "text/plain"}), "backdated_receipt.txt");
   }
 
-  executeCaseAnalysis(formData);
+  await executeCaseAnalysis(formData);
 }
 
 // Benchmark Runner
@@ -645,4 +696,39 @@ async function triggerBenchmark() {
     btn.disabled = false;
     btn.textContent = "▶ Run Benchmark Suite Again";
   }
+}
+
+// Live API Health & Latency Poller
+async function pollApiHealth() {
+  const badge = document.getElementById("apiStatusBadge");
+  if (!badge) return;
+  const t0 = performance.now();
+  try {
+    const res = await fetch("/api/health");
+    const latency = Math.round(performance.now() - t0);
+    if (res.ok) {
+      const data = await res.json();
+      const engineMode = data.genai_sdk_available ? "Vertex AI / GenAI (Online)" : "Fallback Mode";
+      badge.className = "badge badge-risk-medium";
+      badge.style.background = "#064e3b";
+      badge.style.color = "#34d399";
+      badge.style.border = "1px solid #059669";
+      badge.textContent = `API: ONLINE (${latency}ms) | Engine: ${engineMode}`;
+    } else {
+      badge.className = "badge badge-risk-critical";
+      badge.textContent = `API: ERROR ${res.status}`;
+    }
+  } catch (err) {
+    badge.className = "badge badge-risk-critical";
+    badge.textContent = "API: OFFLINE";
+  }
+}
+
+// Initial health check and periodic polling
+if (typeof window !== "undefined") {
+  window.addEventListener("DOMContentLoaded", () => {
+    pollApiHealth();
+    setInterval(pollApiHealth, 10000);
+  });
+  pollApiHealth();
 }
