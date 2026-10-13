@@ -110,14 +110,35 @@ async def get_wash_proximity_violations():
 class InspectionRequestPayload(BaseModel):
     transcript: str = ""
     asset_hint: Optional[str] = None
+    image_base64: Optional[str] = None
+    image_filename: Optional[str] = None
 
 
 @app.post("/api/inspect")
 async def inspect_media(payload: InspectionRequestPayload):
-    """Processes multimodal volunteer inspection text or sensor telemetry."""
+    """Processes multimodal volunteer inspection text or base64 photo/sensor telemetry."""
     res = service.inspection_engine.analyze_inspection(
         text_transcript=payload.transcript,
+        image_base64=payload.image_base64,
+        image_filename=payload.image_filename or "",
         asset_hint=payload.asset_hint,
+    )
+    return res.model_dump()
+
+
+@app.post("/api/inspect/upload")
+async def inspect_upload(
+    file: UploadFile = File(...),
+    transcript: str = Form(""),
+    asset_hint: Optional[str] = Form(None),
+):
+    """Uploads inspection media (phone photo, video frame) from field volunteer."""
+    image_bytes = await file.read()
+    res = service.inspection_engine.analyze_inspection(
+        text_transcript=transcript,
+        image_bytes=image_bytes,
+        image_filename=file.filename or "upload.jpg",
+        asset_hint=asset_hint,
     )
     return res.model_dump()
 
@@ -127,6 +148,7 @@ class CascadeSimulatePayload(BaseModel):
     sentinel1_soil_saturation: float = 0.88
     copernicus_dem_slope_deg: float = 22.5
     scenario_id: str = "custom_monsoon_sim"
+    defects: Optional[List[Dict[str, Any]]] = None
 
 
 @app.post("/api/cascade/simulate")
@@ -137,11 +159,16 @@ async def simulate_cascade(payload: CascadeSimulatePayload):
         sentinel1_soil_saturation=payload.sentinel1_soil_saturation,
         copernicus_dem_slope_deg=payload.copernicus_dem_slope_deg,
     )
-    # Generate default baseline defects
-    baseline_inspection = service.inspection_engine.analyze_inspection()
+    if payload.defects:
+        from terrapulse.models import InspectionDefect
+        defects = [InspectionDefect.model_validate(d) for d in payload.defects]
+    else:
+        baseline_inspection = service.inspection_engine.analyze_inspection()
+        defects = baseline_inspection.defects_detected
+
     cascade = service.cascade_engine.simulate_cascade(
         telemetry=telemetry,
-        defects=baseline_inspection.defects_detected,
+        defects=defects,
         scenario_id=payload.scenario_id,
     )
     return cascade.model_dump()

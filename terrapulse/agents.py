@@ -163,9 +163,12 @@ class MicroEvacuationAgent:
         if not vulnerable_shelters:
             vulnerable_shelters = [f"SHELTER_S4{i:02d}" for i in range(8, 16)]
 
-        # Hazardous zones to completely avoid
-        hazard_nodes = set(cascade.compromised_assets)
-        # We also avoid flooded ravine paths
+        # Hazardous zones to completely avoid (filter out shelters so origin shelters are not blocked)
+        hazard_nodes = {
+            aid for aid in cascade.compromised_assets
+            if aid in self.twin.assets and self.twin.assets[aid].asset_type.value != "shelter"
+        }
+        # Avoid active failure nodes & flooded ravine junctions
         hazard_nodes.update(["DRAIN_J01", "CULVERT_C14", "WALL_BW07", "LATRINE_LP101"])
 
         routes = self.twin.find_safe_evacuation_routes(

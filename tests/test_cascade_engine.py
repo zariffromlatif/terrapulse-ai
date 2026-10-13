@@ -76,3 +76,39 @@ def test_cascade_dry_baseline_simulation():
     res = engine.simulate_cascade(telemetry=telemetry, defects=defects)
     # Dry conditions should result in low cascade probability
     assert res.cascade_probability < 0.40
+
+
+def test_cascade_with_empty_defects():
+    twin = CampDigitalTwin()
+    engine = CompoundCascadeEngine(digital_twin=twin)
+
+    telemetry = OrbitalTelemetry(
+        gpm_rain_rate_mm_hr=0.0,
+        sentinel1_soil_saturation=0.20,
+        copernicus_dem_slope_deg=22.5,
+    )
+
+    # Empty defects must not trigger false disaster defaults (75% silt / 18.5 deg tilt)
+    res = engine.simulate_cascade(telemetry=telemetry, defects=[])
+    assert res.cascade_probability < 0.20
+    assert res.population_at_risk == 0
+    assert len(res.compromised_assets) == 0
+    assert all(stg.status == "PENDING" for stg in res.stages)
+
+
+def test_hydrological_rational_formula_runoff():
+    twin = CampDigitalTwin()
+    engine = CompoundCascadeEngine(digital_twin=twin)
+
+    # Monsoon 65 mm/hr
+    tel_rain = OrbitalTelemetry(gpm_rain_rate_mm_hr=65.0, sentinel1_soil_saturation=0.88)
+    res_rain = engine.simulate_cascade(telemetry=tel_rain, defects=[])
+    # Peak runoff for 65 mm/hr over 4200 m^2 with C=0.75 is approx 3.8 - 5.7 m^3/s
+    assert "generates" in res_rain.stages[0].description
+    assert "peak runoff" in res_rain.stages[0].description
+
+    # Dry 0 mm/hr
+    tel_dry = OrbitalTelemetry(gpm_rain_rate_mm_hr=0.0, sentinel1_soil_saturation=0.20)
+    res_dry = engine.simulate_cascade(telemetry=tel_dry, defects=[])
+    assert "No active runoff under dry conditions" in res_dry.stages[0].description
+

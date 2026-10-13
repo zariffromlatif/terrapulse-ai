@@ -76,7 +76,9 @@ def test_micro_evacuation_agent(sample_cascade):
 
     assert len(plans) >= 1
     plan = plans[0]
+    assert plan.plan_id == "EVAC-CORRIDOR-G1"
     assert "SAFEZONE" in plan.safe_zone_id
+    assert len(plan.waypoint_coordinates) >= 3
     assert plan.estimated_transit_minutes > 0
     assert len(plan.avoided_hazard_zones) > 0
     assert "Rohingya" in plan.instructions_multilingual

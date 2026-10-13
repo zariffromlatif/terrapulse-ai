@@ -531,21 +531,19 @@ class CampDigitalTwin:
         safe_zones = [a.id for a in self.assets.values() if a.asset_type == AssetType.SAFE_ZONE]
         routes: List[Dict[str, Any]] = []
 
-        # Create safe traversal subgraph
-        traversal_graph = self.graph.copy()
-        # Remove hazardous nodes (collapsed retaining walls, overflowing latrines, flooded culverts)
-        for h in hazardous_nodes:
-            if traversal_graph.has_node(h):
-                traversal_graph.remove_node(h)
-
-        # Remove impassable edges
-        for u, v in blocked_edges:
-            if traversal_graph.has_edge(u, v):
-                traversal_graph.remove_edge(u, v)
-
         for shelter_id in origin_shelter_ids:
             if shelter_id not in self.assets:
                 continue
+
+            # Create safe traversal subgraph per origin, preserving origin shelter start node
+            traversal_graph = self.graph.copy()
+            for h in hazardous_nodes:
+                if h != shelter_id and traversal_graph.has_node(h):
+                    traversal_graph.remove_node(h)
+
+            for u, v in blocked_edges:
+                if traversal_graph.has_edge(u, v):
+                    traversal_graph.remove_edge(u, v)
 
             best_path = None
             best_cost = float("inf")

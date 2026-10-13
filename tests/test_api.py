@@ -85,3 +85,53 @@ def test_scenarios_and_benchmark_endpoints():
     r_bench = client.get("/api/benchmark")
     assert r_bench.status_code == 200
     assert r_bench.json()["overall_benchmark_score"] >= 85.0
+
+
+def test_inspect_upload_endpoint():
+    # Test multipart form upload with a mock image file
+    fake_img = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4"
+    files = {"file": ("volunteer_field_photo.png", fake_img, "image/png")}
+    data = {"transcript": "Culvert C-14 has 75% silt blockage."}
+    response = client.post("/api/inspect/upload", files=files, data=data)
+    assert response.status_code == 200
+    res = response.json()
+    assert "inspection_id" in res
+    assert len(res["defects_detected"]) >= 1
+
+
+def test_inspect_base64_endpoint():
+    tiny_png_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    payload = {
+        "transcript": "Retaining wall BW-07 shows 18.5 deg deflection.",
+        "image_base64": tiny_png_b64,
+        "image_filename": "wall_test.png",
+    }
+    response = client.post("/api/inspect", json=payload)
+    assert response.status_code == 200
+    res = response.json()
+    assert len(res["defects_detected"]) >= 1
+
+
+def test_cascade_simulate_custom_defects():
+    payload = {
+        "gpm_rain_rate_mm_hr": 35.0,
+        "sentinel1_soil_saturation": 0.60,
+        "copernicus_dem_slope_deg": 18.0,
+        "scenario_id": "test_moderate",
+        "defects": [
+            {
+                "defect_id": "D-CUST-1",
+                "defect_type": "culvert_siltation",
+                "severity": "MEDIUM",
+                "confidence": 0.9,
+                "asset_id": "CULVERT_C14",
+                "siltation_pct": 40.0,
+            }
+        ],
+    }
+    response = client.post("/api/cascade/simulate", json=payload)
+    assert response.status_code == 200
+    res = response.json()
+    assert res["scenario_id"] == "test_moderate"
+    assert len(res["stages"]) == 5
+

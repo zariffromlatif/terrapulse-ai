@@ -146,7 +146,13 @@
             <span class="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold">📷 Multimodal Inspection Feed</span>
             <span class="text-[10px] px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-900 font-mono">Gemini 2.0 Flash Vision</span>
           </div>
-          <span class="text-[11px] text-slate-400 font-mono" id="inspAssetId">Asset: WALL_BW07 & CULVERT_C14</span>
+          <div class="flex items-center space-x-2">
+            <input type="file" id="mediaUploadInput" class="hidden" accept="image/*" onchange="handleMediaUpload(event)" />
+            <button onclick="document.getElementById('mediaUploadInput').click()" class="px-2 py-0.5 rounded bg-amber-900/60 hover:bg-amber-800 text-amber-200 border border-amber-700 text-[10px] font-mono flex items-center space-x-1 cursor-pointer">
+              <span>📤 Upload Photo</span>
+            </button>
+            <span class="text-[11px] text-slate-400 font-mono" id="inspAssetId">Asset: WALL_BW07 & CULVERT_C14</span>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -486,33 +492,221 @@
       document.getElementById('contentEvac').style.display = tab === 'evac' ? 'block' : 'none';
     }
 
+    let currentScenarioId = 'monsoon_65mm_camp4';
+
     async function loadScenario(scenarioId) {
+      currentScenarioId = scenarioId;
       try {
         const resp = await fetch(`/api/scenarios/${scenarioId}/run`, { method: 'POST' });
         if (!resp.ok) return;
         const data = await resp.json();
-
-        // Update telemetry
-        document.getElementById('telRain').innerText = data.telemetry.gpm_rain_rate_mm_hr + ' mm/hr';
-        document.getElementById('telSoil').innerText = (data.telemetry.sentinel1_soil_saturation * 100).toFixed(0) + '% Saturation';
-        document.getElementById('telSlope').innerText = data.telemetry.copernicus_dem_slope_deg + '° Gradient';
-        document.getElementById('telRisk').innerText = (data.cascade.cascade_probability * 100).toFixed(1) + '% ' + (data.cascade.cascade_probability > 0.6 ? 'CRITICAL' : 'MODERATE');
-        document.getElementById('cascadeWindow').innerText = data.cascade.critical_interception_window_min + ' min';
-
-        // Update inspection text
-        document.getElementById('inspTranscript').innerText = data.inspection.defects_detected.map(d => d.volunteer_notes).join(' ');
+        renderPipelineData(data);
       } catch (e) {
         console.error("Scenario load error", e);
       }
     }
 
-    function runInterception() {
+    function renderPipelineData(data) {
+      // 1. Update Telemetry Cards
+      document.getElementById('telRain').innerText = data.telemetry.gpm_rain_rate_mm_hr + ' mm/hr';
+      document.getElementById('telSoil').innerText = (data.telemetry.sentinel1_soil_saturation * 100).toFixed(0) + '% Saturation';
+      document.getElementById('telSlope').innerText = data.telemetry.copernicus_dem_slope_deg + '° Gradient';
+      const prob = data.cascade.cascade_probability;
+      const riskLabel = prob >= 0.65 ? 'CRITICAL' : (prob >= 0.35 ? 'MODERATE' : 'LOW / STABLE');
+      document.getElementById('telRisk').innerText = (prob * 100).toFixed(1) + '% ' + riskLabel;
+      document.getElementById('telRisk').className = 'text-sm font-bold font-mono ' + (prob >= 0.65 ? 'text-red-400' : (prob >= 0.35 ? 'text-amber-400' : 'text-emerald-400'));
+      document.getElementById('cascadeWindow').innerText = data.cascade.critical_interception_window_min + ' min';
+
+      // 2. Update Inspection Feed & Badges
+      const defects = data.inspection.defects_detected || [];
+      document.getElementById('inspTranscript').innerText = defects.map(d => d.volunteer_notes).join(' ') || "No active structural defects reported.";
+      const wallDefect = defects.find(d => d.defect_type === 'bamboo_wall_deflection');
+      const culvDefect = defects.find(d => d.defect_type === 'culvert_siltation');
+      if (wallDefect && wallDefect.deflection_angle_deg != null) {
+        document.getElementById('inspTilt').innerText = wallDefect.deflection_angle_deg + '° (' + wallDefect.severity + ')';
+      }
+      if (culvDefect && culvDefect.siltation_pct != null) {
+        document.getElementById('inspSilt').innerText = culvDefect.siltation_pct + '% (' + culvDefect.severity + ')';
+      }
+
+      // 3. Update Domino Cascade Timeline dynamically
+      const stagesContainer = document.getElementById('cascadeStagesContainer');
+      if (stagesContainer && data.cascade.stages) {
+        stagesContainer.innerHTML = '';
+        data.cascade.stages.forEach(stg => {
+          const isTriggered = stg.status === 'TRIGGERED' || stg.status === 'IMMINENT';
+          const cardBorder = isTriggered ? 'border-red-800/60 bg-red-950/40' : 'border-slate-800 bg-slate-900/90';
+          const badgeBg = isTriggered ? 'bg-red-800 text-white' : 'bg-slate-800 text-slate-300';
+          const titleColor = isTriggered ? 'text-red-300' : 'text-slate-300';
+          
+          const card = document.createElement('div');
+          card.className = `p-2.5 rounded-lg ${cardBorder} flex items-start space-x-2.5 transition`;
+          card.innerHTML = `
+            <span class="px-1.5 py-0.5 rounded ${badgeBg} text-[10px] font-mono font-bold whitespace-nowrap">T+${stg.time_offset_minutes}m</span>
+            <div class="flex-1">
+              <div class="font-bold ${titleColor} flex justify-between">
+                <span>${stg.stage_index}. ${stg.stage_name}</span>
+                <span class="text-[10px] font-mono text-slate-400">P: ${(stg.failure_probability * 100).toFixed(0)}% [${stg.status}]</span>
+              </div>
+              <p class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">${stg.description}</p>
+            </div>
+          `;
+          stagesContainer.appendChild(card);
+        });
+      }
+
+      // 4. Update Agent Swarm Tabs
+      // Tactical
+      const tacDiv = document.getElementById('contentTactical');
+      if (tacDiv && data.dispatch.tactical_missions) {
+        tacDiv.innerHTML = '';
+        data.dispatch.tactical_missions.forEach(m => {
+          const pColor = m.priority.includes('IMMEDIATE') ? 'bg-red-950 text-red-400 border border-red-800' : 'bg-amber-950 text-amber-300 border border-amber-800';
+          const el = document.createElement('div');
+          el.className = 'p-2.5 rounded bg-slate-900 border border-slate-800 space-y-1';
+          el.innerHTML = `
+            <div class="flex justify-between items-center text-[11px]">
+              <span class="font-bold text-cyan-300">${m.assigned_team}</span>
+              <span class="px-1.5 py-0.5 rounded ${pColor} font-mono font-bold text-[10px]">${m.priority}</span>
+            </div>
+            <p class="text-[11px] text-slate-300 leading-relaxed">${m.objective_description}</p>
+            <div class="text-[10px] text-slate-400 font-mono">Tools: ${m.required_equipment.join(', ')}</div>
+            <div class="text-[9px] text-cyan-500 font-mono">GPS: ${m.target_gps.latitude}, ${m.target_gps.longitude} | Urgency: ${m.urgency_minutes}m</div>
+          `;
+          tacDiv.appendChild(el);
+        });
+      }
+
+      // WASH
+      const washDiv = document.getElementById('contentWash');
+      if (washDiv && data.dispatch.wash_alerts) {
+        washDiv.innerHTML = '';
+        data.dispatch.wash_alerts.forEach(w => {
+          const el = document.createElement('div');
+          el.className = 'space-y-2';
+          el.innerHTML = `
+            <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+              <div class="flex justify-between items-center text-[11px] mb-1">
+                <span class="font-bold text-cyan-300">Target Tubewells: ${w.affected_tubewells.join(', ')}</span>
+                <span class="px-1.5 py-0.5 rounded ${w.shutoff_required ? 'bg-red-950 text-red-400 border border-red-800' : 'bg-emerald-950 text-emerald-300'} font-mono font-bold text-[10px]">
+                  ${w.shutoff_required ? 'LOCK_REQUIRED' : 'MONITORING_ONLY'}
+                </span>
+              </div>
+              <div class="text-[10px] text-cyan-400 font-mono mb-1.5">
+                AquaTab Strips: ${w.aquatab_strips_needed} strips | Chlorine: ${w.chlorine_dosing_ppm} ppm
+              </div>
+              <ul class="text-[10px] text-slate-300 space-y-1">
+                ${w.action_items.map(it => `<li>• ${it}</li>`).join('')}
+              </ul>
+            </div>
+          `;
+          washDiv.appendChild(el);
+        });
+      }
+
+      // Evacuation
+      const evacDiv = document.getElementById('contentEvac');
+      if (evacDiv && data.dispatch.evacuation_plans) {
+        evacDiv.innerHTML = '';
+        data.dispatch.evacuation_plans.forEach(ep => {
+          const el = document.createElement('div');
+          el.className = 'space-y-2';
+          el.innerHTML = `
+            <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+              <div class="flex justify-between items-center text-[11px] mb-1">
+                <span class="font-bold text-emerald-300">Escape Corridor -> ${ep.safe_zone_name}</span>
+                <span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono font-bold text-[10px]">ROUTE_ACTIVE</span>
+              </div>
+              <div class="text-[10px] text-slate-400 font-mono flex justify-between mb-1.5">
+                <span>Waypoints: ${ep.waypoint_coordinates.length}</span>
+                <span>Est. Time: ${ep.estimated_transit_minutes} min</span>
+              </div>
+              <div class="text-[10px] font-mono text-amber-400 font-bold mb-1">AVOIDED HAZARD ZONES</div>
+              <div class="text-[10px] text-slate-300 leading-relaxed font-mono mb-2">
+                ${ep.avoided_hazard_zones.map(z => `❌ ${z}`).join('<br/>')}
+              </div>
+              <div class="p-2 rounded bg-slate-950 border border-slate-800 text-[10px] text-slate-300 italic">
+                Rohingya: "${ep.instructions_multilingual?.Rohingya || ''}"
+              </div>
+            </div>
+          `;
+          evacDiv.appendChild(el);
+        });
+      }
+
+      // 5. Update Leaflet Map Dynamic Evacuation Route Polyline
+      if (map && data.dispatch.evacuation_plans && data.dispatch.evacuation_plans[0]) {
+        const waypoints = data.dispatch.evacuation_plans[0].waypoint_coordinates;
+        if (waypoints && waypoints.length > 0) {
+          const latlngs = waypoints.map(w => [w.latitude, w.longitude]);
+          if (evacLine) {
+            evacLine.setLatLngs(latlngs);
+          } else {
+            evacLine = L.polyline(latlngs, {
+              color: '#10b981',
+              weight: 4,
+              dashArray: '8, 8',
+              opacity: 0.95
+            }).addTo(map);
+          }
+        }
+      }
+
+      // Update hazard circle radius and appearance
+      if (hazardCircle) {
+        if (prob >= 0.65) {
+          hazardCircle.setRadius(40);
+          hazardCircle.setStyle({ color: '#ef4444', fillColor: '#b91c1c', fillOpacity: 0.4 });
+        } else if (prob >= 0.35) {
+          hazardCircle.setRadius(25);
+          hazardCircle.setStyle({ color: '#f59e0b', fillColor: '#d97706', fillOpacity: 0.25 });
+        } else {
+          hazardCircle.setRadius(10);
+          hazardCircle.setStyle({ color: '#10b981', fillColor: '#059669', fillOpacity: 0.15 });
+        }
+      }
+    }
+
+    async function handleMediaUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('transcript', 'Volunteer uploaded field inspection photo via Command HUD');
+
+      try {
+        const resp = await fetch('/api/inspect/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (!resp.ok) {
+          alert('Upload failed: ' + resp.statusText);
+          return;
+        }
+        const inspData = await resp.json();
+        alert(`✅ Photo analyzed by ${inspData.processed_by}!\nDetected ${inspData.defects_detected.length} defects with risk score ${(inspData.risk_score*100).toFixed(0)}%.\nPrimary hazard: ${inspData.primary_hazard}`);
+        document.getElementById('inspTranscript').innerText = inspData.defects_detected.map(d => d.volunteer_notes).join(' ');
+      } catch (err) {
+        alert('Inspection error: ' + err.message);
+      }
+    }
+
+    async function runInterception() {
       const btn = document.getElementById('interceptionBtn');
-      btn.innerText = '✅ INTERCEPTION ACTIVE';
-      btn.className = 'bg-emerald-600 text-white text-xs font-semibold px-4 py-1.5 rounded shadow-lg transition flex items-center space-x-1.5 font-mono';
-      document.getElementById('swarmStatusBadge').innerText = 'MISSIONS DISPATCHED';
-      document.getElementById('swarmStatusBadge').className = 'text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono border border-cyan-800 animate-pulse';
-      alert("⚡ TerraPulse Interception Orders Dispatched!\n- Tactical CPP Crew mobilized to Culvert C-14\n- Tubewell TW-04 locked\n- 320 AquaTab strips distributed\n- Dynamic evacuation corridor opened to Primary Safe Haven.");
+      btn.innerText = '⏳ DISPATCHING...';
+      try {
+        const resp = await fetch(`/api/agents/dispatch?cascade_id=${currentScenarioId}`, { method: 'POST' });
+        const dispatch = await resp.json();
+        btn.innerText = '✅ INTERCEPTION ACTIVE';
+        btn.className = 'bg-emerald-600 text-white text-xs font-semibold px-4 py-1.5 rounded shadow-lg transition flex items-center space-x-1.5 font-mono';
+        document.getElementById('swarmStatusBadge').innerText = 'MISSIONS ACTIVE';
+        document.getElementById('swarmStatusBadge').className = 'text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono border border-cyan-800 animate-pulse';
+        alert(`⚡ TerraPulse Agent Swarm Dispatched!\n${dispatch.dispatch_summary}`);
+      } catch (e) {
+        btn.innerText = '⚡ 1-CLICK INTERCEPTION';
+        alert('Interception dispatch failed: ' + e.message);
+      }
     }
 
     window.addEventListener('DOMContentLoaded', () => {

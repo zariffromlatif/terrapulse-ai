@@ -178,32 +178,41 @@ OVERALL COMPOSITE BENCHMARK SCORE         : 100.0%
 >>> BENCHMARK STATUS: ALL EVALUATION GATES PASSED (EXCELLENT)
 ```
 
-### Pytest Unit Test Suite (22 Tests Passing)
+### Pytest Unit Test Suite (31 Tests Passing)
 ```bash
 $ pytest tests/ -v
-tests/test_agents.py::test_tactical_dispatch_agent PASSED                [  4%]
-tests/test_agents.py::test_wash_protection_agent PASSED                  [  9%]
-tests/test_agents.py::test_micro_evacuation_agent PASSED                 [ 13%]
-tests/test_agents.py::test_agent_swarm_consensus PASSED                  [ 18%]
-tests/test_api.py::test_command_hud_endpoint PASSED                      [ 22%]
-tests/test_api.py::test_health_check_endpoint PASSED                     [ 27%]
-tests/test_api.py::test_digital_twin_endpoints PASSED                    [ 31%]
-tests/test_api.py::test_inspect_endpoint PASSED                          [ 36%]
-tests/test_api.py::test_cascade_simulate_endpoint PASSED                 [ 40%]
-tests/test_api.py::test_scenarios_and_benchmark_endpoints PASSED         [ 45%]
-tests/test_cascade_engine.py::test_cascade_monsoon_simulation PASSED     [ 50%]
-tests/test_cascade_engine.py::test_cascade_dry_baseline_simulation PASSED [ 54%]
-tests/test_digital_twin.py::test_distance_calculation PASSED             [ 59%]
-tests/test_digital_twin.py::test_digital_twin_topology PASSED            [ 63%]
-tests/test_digital_twin.py::test_hydrological_gravity_flow PASSED        [ 68%]
-tests/test_digital_twin.py::test_topographic_wetness_index PASSED        [ 72%]
-tests/test_digital_twin.py::test_sphere_wash_violations_detection PASSED [ 77%]
-tests/test_digital_twin.py::test_safe_evacuation_routing PASSED          [ 81%]
-tests/test_digital_twin.py::test_geojson_export PASSED                   [ 86%]
-tests/test_inspection.py::test_inspection_engine_init PASSED             [ 90%]
-tests/test_inspection.py::test_inspection_fallback_extraction PASSED     [ 95%]
-tests/test_inspection.py::test_inspection_empty_input_defaults PASSED    [100%]
-======================== 22 passed in 1.98s ========================
+tests/test_agents.py::test_tactical_dispatch_agent PASSED                [  3%]
+tests/test_agents.py::test_wash_protection_agent PASSED                  [  6%]
+tests/test_agents.py::test_micro_evacuation_agent PASSED                 [  9%]
+tests/test_agents.py::test_agent_swarm_consensus PASSED                  [ 12%]
+tests/test_api.py::test_command_hud_endpoint PASSED                      [ 16%]
+tests/test_api.py::test_health_check_endpoint PASSED                     [ 19%]
+tests/test_api.py::test_digital_twin_endpoints PASSED                    [ 22%]
+tests/test_api.py::test_inspect_endpoint PASSED                          [ 25%]
+tests/test_api.py::test_cascade_simulate_endpoint PASSED                 [ 29%]
+tests/test_api.py::test_scenarios_and_benchmark_endpoints PASSED         [ 32%]
+tests/test_api.py::test_inspect_upload_endpoint PASSED                   [ 35%]
+tests/test_api.py::test_inspect_base64_endpoint PASSED                   [ 38%]
+tests/test_api.py::test_cascade_simulate_custom_defects PASSED           [ 41%]
+tests/test_cascade_engine.py::test_cascade_monsoon_simulation PASSED     [ 45%]
+tests/test_cascade_engine.py::test_cascade_dry_baseline_simulation PASSED [ 48%]
+tests/test_cascade_engine.py::test_cascade_with_empty_defects PASSED     [ 51%]
+tests/test_cascade_engine.py::test_hydrological_rational_formula_runoff PASSED [ 54%]
+tests/test_digital_twin.py::test_distance_calculation PASSED             [ 58%]
+tests/test_digital_twin.py::test_digital_twin_topology PASSED            [ 61%]
+tests/test_digital_twin.py::test_hydrological_gravity_flow PASSED        [ 64%]
+tests/test_digital_twin.py::test_topographic_wetness_index PASSED        [ 67%]
+tests/test_digital_twin.py::test_sphere_wash_violations_detection PASSED [ 70%]
+tests/test_digital_twin.py::test_safe_evacuation_routing PASSED          [ 74%]
+tests/test_digital_twin.py::test_geojson_export PASSED                   [ 77%]
+tests/test_digital_twin.py::test_safe_evacuation_routing_when_origin_in_hazards PASSED [ 80%]
+tests/test_inspection.py::test_inspection_engine_init PASSED             [ 83%]
+tests/test_inspection.py::test_inspection_fallback_extraction PASSED     [ 87%]
+tests/test_inspection.py::test_inspection_empty_input_defaults PASSED    [ 90%]
+tests/test_inspection.py::test_inspection_routine_survey_no_critical_false_positives PASSED [ 93%]
+tests/test_inspection.py::test_inspection_medium_defects_calibration PASSED [ 96%]
+tests/test_inspection.py::test_inspection_base64_decoding PASSED         [100%]
+======================== 31 passed in 1.48s ========================
 ```
 
 ---
@@ -288,7 +297,8 @@ This pipeline automatically:
 | `GET` | `/api/twin/geojson` | Authentic GeoJSON FeatureCollection of Camp 4 Block G |
 | `GET` | `/api/twin/twi` | Computed Topographic Wetness Index (TWI) values |
 | `GET` | `/api/twin/wash-risk` | UN Sphere Standard sanitation vs drinking water violations |
-| `POST` | `/api/inspect` | Multimodal volunteer inspection analysis |
+| `POST` | `/api/inspect` | Multimodal volunteer inspection text or base64 analysis |
+| `POST` | `/api/inspect/upload` | Multipart file upload for field volunteer smartphone photos |
 | `POST` | `/api/cascade/simulate`| Fuses rainfall, SAR moisture, and defects for domino simulation |
 | `POST` | `/api/agents/dispatch` | Coordinates Vertex AI Tactical, WASH, and Evac agents |
 | `GET` | `/api/scenarios` | Lists preconfigured demonstration scenarios |

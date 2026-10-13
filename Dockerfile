@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code and assets
 COPY terrapulse/ ./terrapulse/
+COPY sample_data/ ./sample_data/
 COPY app.py .
 COPY eval_benchmark.py .
 

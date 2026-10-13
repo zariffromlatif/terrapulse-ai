@@ -102,7 +102,10 @@ class TerraPulseService:
         image_filename: str = "",
         scenario_id: str = "monsoon_65mm_camp4",
     ) -> Dict[str, Any]:
-        """Executes the full end-to-end TerraPulse analysis pipeline."""
+        matching_sc = next((s for s in self.get_preloaded_scenarios() if s["id"] == scenario_id), None)
+        if not inspection_text and matching_sc:
+            inspection_text = matching_sc.get("inspection_text", "")
+
         # 1. Multimodal defect extraction
         inspection_result: InspectionResult = self.inspection_engine.analyze_inspection(
             text_transcript=inspection_text,
@@ -112,11 +115,18 @@ class TerraPulseService:
 
         # 2. Telemetry resolution
         if telemetry is None:
-            telemetry = OrbitalTelemetry(
-                gpm_rain_rate_mm_hr=65.0,
-                sentinel1_soil_saturation=0.88,
-                copernicus_dem_slope_deg=22.5,
-            )
+            if matching_sc:
+                telemetry = OrbitalTelemetry(
+                    gpm_rain_rate_mm_hr=matching_sc["telemetry"]["gpm_rain_rate_mm_hr"],
+                    sentinel1_soil_saturation=matching_sc["telemetry"]["sentinel1_soil_saturation"],
+                    copernicus_dem_slope_deg=matching_sc["telemetry"]["copernicus_dem_slope_deg"],
+                )
+            else:
+                telemetry = OrbitalTelemetry(
+                    gpm_rain_rate_mm_hr=65.0,
+                    sentinel1_soil_saturation=0.88,
+                    copernicus_dem_slope_deg=22.5,
+                )
 
         # 3. Compound cascade simulation
         cascade_result: CascadeSimulationResult = self.cascade_engine.simulate_cascade(

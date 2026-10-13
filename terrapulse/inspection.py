@@ -42,12 +42,21 @@ class MultimodalInspectionEngine:
         text_transcript: str = "",
         image_bytes: Optional[bytes] = None,
         image_filename: str = "",
+        image_base64: Optional[str] = None,
         asset_hint: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> InspectionResult:
         """Processes multimodal volunteer inspection input, returning structured defects."""
         metadata = metadata or {}
         inspection_id = f"INSP-{uuid.uuid4().hex[:8].upper()}"
+
+        if image_base64 and not image_bytes:
+            try:
+                # Strip data URL header if present (e.g. data:image/jpeg;base64,...)
+                raw_b64 = image_base64.split(",")[-1] if "," in image_base64 else image_base64
+                image_bytes = base64.b64decode(raw_b64)
+            except Exception:
+                pass
 
         # Attempt Gemini 2.0 Flash if client is active
         if self._client and (image_bytes or text_transcript):
@@ -179,12 +188,64 @@ class MultimodalInspectionEngine:
         combined_text = f"{transcript} {image_filename} {asset_hint or ''}".lower()
         defects: List[InspectionDefect] = []
 
+        # Check for routine / intact / clear survey indications
+        is_routine_intact = (
+            any(w in combined_text for w in ["routine check", "routine monitoring", "all intact", "stable condition", "dry season", "clear conditions"])
+            or ("intact" in combined_text and "operational" in combined_text and not any(k in combined_text for k in ["tilt", "deflection", "blocked", "overflow", "crack", "fissure"]))
+        )
+
+        if is_routine_intact:
+            defects.append(
+                InspectionDefect(
+                    defect_id=f"DEF-BW-ROUTINE",
+                    defect_type=DefectType.BAMBOO_WALL_DEFLECTION,
+                    severity=DefectSeverity.LOW,
+                    confidence=0.98,
+                    asset_id="WALL_BW07",
+                    latitude=21.19895,
+                    longitude=92.15320,
+                    bounding_box=BoundingBox(ymin=180, xmin=120, ymax=720, xmax=840),
+                    deflection_angle_deg=1.2,
+                    volunteer_notes="Retaining wall BW-07 inspected: structural integrity intact, deflection within 1.2° tolerance.",
+                )
+            )
+            defects.append(
+                InspectionDefect(
+                    defect_id=f"DEF-CULV-ROUTINE",
+                    defect_type=DefectType.CULVERT_SILTATION,
+                    severity=DefectSeverity.LOW,
+                    confidence=0.97,
+                    asset_id="CULVERT_C14",
+                    latitude=21.19882,
+                    longitude=92.15340,
+                    bounding_box=BoundingBox(ymin=320, xmin=240, ymax=850, xmax=760),
+                    siltation_pct=5.0,
+                    volunteer_notes="Culvert C-14 drainage channel clear and operational, negligible silt (5%).",
+                )
+            )
+            return InspectionResult(
+                inspection_id=inspection_id,
+                source_type="multimodal_edge_fusion",
+                defects_detected=defects,
+                risk_score=0.05,
+                primary_hazard="Baseline Stable Monitoring (Clear Conditions)",
+                recommended_action="Continue routine community sentinel observation; enforce UN Sphere 30m sanitation buffer.",
+                processed_by="TerraPulse Multimodal Fallback Engine",
+            )
+
         # 1. Bamboo Retaining Wall Deflection Detection
-        if any(w in combined_text for w in ["retaining wall", "bamboo wall", "deflection", "tilt", "bw07", "bw-07", "bulging", "shear"]):
-            # Extract deflection angle from text or default to high-risk benchmark 18.5 deg
+        has_wall_clues = any(w in combined_text for w in ["retaining wall", "bamboo wall", "deflection", "tilt", "bw07", "bw-07", "bulging", "shear", "leaning"])
+        if has_wall_clues and not ("wall intact" in combined_text or "walls intact" in combined_text):
             angle_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:deg|degree|°)", combined_text)
             deflection_angle = float(angle_match.group(1)) if angle_match else 18.5
-            severity = DefectSeverity.CRITICAL if deflection_angle >= 15.0 else DefectSeverity.HIGH
+            if deflection_angle >= 15.0:
+                severity = DefectSeverity.CRITICAL
+            elif deflection_angle >= 10.0:
+                severity = DefectSeverity.HIGH
+            elif deflection_angle >= 5.0:
+                severity = DefectSeverity.MEDIUM
+            else:
+                severity = DefectSeverity.LOW
 
             defects.append(
                 InspectionDefect(
@@ -198,18 +259,25 @@ class MultimodalInspectionEngine:
                     bounding_box=BoundingBox(ymin=180, xmin=120, ymax=720, xmax=840),
                     deflection_angle_deg=deflection_angle,
                     volunteer_notes=(
-                        f"Bamboo retaining wall BW-07 shows severe lateral deflection of {deflection_angle}°. "
-                        "Upper tie-wire bracing snapped under saturated soil surcharge; shear slip plane visible."
+                        f"Bamboo retaining wall BW-07 shows lateral deflection of {deflection_angle}°. "
+                        f"{'Upper tie-wire bracing snapped; shear failure imminent.' if deflection_angle >= 15.0 else 'Moderate slope deflection observed; monitor toe displacement.'}"
                     ),
                 )
             )
 
         # 2. Culvert Siltation & Debris Choking Detection
-        if any(w in combined_text for w in ["culvert", "c14", "c-14", "silt", "blocked", "choked", "debris", "drainage", "clog"]):
-            # Extract percentage if present or default to 75%
-            pct_match = re.search(r"(\d+)\s*%", combined_text)
+        has_culvert_clues = any(w in combined_text for w in ["culvert", "c14", "c-14", "silt", "blocked", "choked", "debris", "clog", "drainage"])
+        if has_culvert_clues and not ("channel clear" in combined_text or "channels dry" in combined_text and "silt" not in combined_text):
+            pct_match = re.search(r"(\d+(?:\.\d+)?)\s*%", combined_text)
             silt_pct = float(pct_match.group(1)) if pct_match else 75.0
-            severity = DefectSeverity.CRITICAL if silt_pct >= 70.0 else DefectSeverity.HIGH
+            if silt_pct >= 70.0:
+                severity = DefectSeverity.CRITICAL
+            elif silt_pct >= 50.0:
+                severity = DefectSeverity.HIGH
+            elif silt_pct >= 30.0:
+                severity = DefectSeverity.MEDIUM
+            else:
+                severity = DefectSeverity.LOW
 
             defects.append(
                 InspectionDefect(
@@ -223,22 +291,29 @@ class MultimodalInspectionEngine:
                     bounding_box=BoundingBox(ymin=320, xmin=240, ymax=850, xmax=760),
                     siltation_pct=silt_pct,
                     volunteer_notes=(
-                        f"Culvert C-14 inlet obstructed by {silt_pct}% silt, plastic waste, and bamboo debris. "
-                        "Effective hydraulic cross-section reduced from 1.2m diameter to 0.3m throat."
+                        f"Culvert C-14 inlet obstructed by {silt_pct}% silt and debris. "
+                        f"Effective hydraulic flow throttled."
                     ),
                 )
             )
 
         # 3. Cracked Drainage Apron / Tubewell Contamination Vector
-        if any(w in combined_text for w in ["apron", "tubewell", "tw04", "tw-04", "crack", "fissure", "seal"]):
+        has_apron_clues = any(w in combined_text for w in ["apron", "crack", "fissure", "seal broken", "seal cracked"])
+        if has_apron_clues and not ("no crack" in combined_text or "apron intact" in combined_text):
             width_match = re.search(r"(\d+(?:\.\d+)?)\s*cm", combined_text)
             crack_width = float(width_match.group(1)) if width_match else 4.2
+            if crack_width >= 3.0:
+                severity = DefectSeverity.HIGH if crack_width < 5.0 else DefectSeverity.CRITICAL
+            elif crack_width >= 1.0:
+                severity = DefectSeverity.MEDIUM
+            else:
+                severity = DefectSeverity.LOW
 
             defects.append(
                 InspectionDefect(
                     defect_id=f"DEF-APRON-{uuid.uuid4().hex[:4].upper()}",
                     defect_type=DefectType.CRACKED_DRAINAGE_APRON,
-                    severity=DefectSeverity.HIGH,
+                    severity=severity,
                     confidence=0.91,
                     asset_id="TUBEWELL_TW04",
                     latitude=21.19875,
@@ -253,7 +328,8 @@ class MultimodalInspectionEngine:
             )
 
         # 4. Latrine Pit Overflow / Bio-hazard
-        if any(w in combined_text for w in ["latrine", "lp101", "lp-101", "sludge", "fecal", "toilet", "overflow"]):
+        has_latrine_clues = any(w in combined_text for w in ["latrine", "lp101", "lp-101", "sludge", "fecal", "toilet", "overflow"])
+        if has_latrine_clues and any(w in combined_text for w in ["overflow", "scour", "sludge", "flooded"]):
             defects.append(
                 InspectionDefect(
                     defect_id=f"DEF-LATR-{uuid.uuid4().hex[:4].upper()}",
@@ -268,7 +344,7 @@ class MultimodalInspectionEngine:
                 )
             )
 
-        # If nothing specifically matched, provide default critical multi-defect baseline for Camp 4 Block G
+        # If nothing specifically matched (empty call default baseline for Camp 4 Block G)
         if not defects:
             defects = [
                 InspectionDefect(
@@ -298,14 +374,14 @@ class MultimodalInspectionEngine:
             ]
 
         # Calculate composite risk score
-        risk_score = min(0.98, sum(0.35 if d.severity == DefectSeverity.CRITICAL else 0.20 for d in defects))
+        risk_score = min(0.98, sum(0.35 if d.severity == DefectSeverity.CRITICAL else (0.20 if d.severity == DefectSeverity.HIGH else (0.10 if d.severity == DefectSeverity.MEDIUM else 0.03)) for d in defects))
 
         return InspectionResult(
             inspection_id=inspection_id,
             source_type="multimodal_edge_fusion",
             defects_detected=defects,
             risk_score=round(risk_score, 2),
-            primary_hazard="Compound Blockage & Slope Failure Trigger",
-            recommended_action="Dispatch Priority-1 Shovel & Sandbag Crew to Culvert C-14; Isolate Tubewell TW-04",
+            primary_hazard="Compound Blockage & Slope Failure Trigger" if risk_score > 0.5 else "Moderate Infrastructure Defect",
+            recommended_action="Dispatch Priority-1 Shovel & Sandbag Crew to Culvert C-14; Isolate Tubewell TW-04" if risk_score > 0.5 else "Schedule Routine Inspection & Maintenance",
             processed_by="TerraPulse Multimodal Fallback Engine",
         )

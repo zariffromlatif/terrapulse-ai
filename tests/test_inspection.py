@@ -49,3 +49,44 @@ def test_inspection_empty_input_defaults():
     result = engine.analyze_inspection()
     assert len(result.defects_detected) >= 2
     assert result.risk_score > 0.5
+
+
+def test_inspection_routine_survey_no_critical_false_positives():
+    engine = MultimodalInspectionEngine(api_key=None)
+    routine_text = "Routine check: Retaining walls intact. Drainage channels dry. Tubewell operational."
+    result = engine.analyze_inspection(text_transcript=routine_text)
+
+    assert result.risk_score <= 0.10
+    assert "Stable" in result.primary_hazard or "Clear" in result.primary_hazard
+    # None of the extracted defects should be CRITICAL or HIGH
+    for d in result.defects_detected:
+        assert d.severity == DefectSeverity.LOW
+
+
+def test_inspection_medium_defects_calibration():
+    engine = MultimodalInspectionEngine(api_key=None)
+    text = "Culvert C-14 has 40% silt buildup from road runoff. Bamboo retaining wall BW-07 shows slight 6 degree deflection. No structural rupture."
+    result = engine.analyze_inspection(text_transcript=text)
+
+    wall = next((d for d in result.defects_detected if d.defect_type == DefectType.BAMBOO_WALL_DEFLECTION), None)
+    assert wall is not None
+    assert wall.deflection_angle_deg == 6.0
+    assert wall.severity == DefectSeverity.MEDIUM
+
+    culv = next((d for d in result.defects_detected if d.defect_type == DefectType.CULVERT_SILTATION), None)
+    assert culv is not None
+    assert culv.siltation_pct == 40.0
+    assert culv.severity == DefectSeverity.MEDIUM
+
+
+def test_inspection_base64_decoding():
+    engine = MultimodalInspectionEngine(api_key=None)
+    # 1x1 transparent PNG base64
+    tiny_png_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    result = engine.analyze_inspection(
+        text_transcript="Culvert C-14 inspection photo",
+        image_base64=tiny_png_b64,
+        image_filename="culvert_c14_drone.png",
+    )
+    assert len(result.defects_detected) >= 1
+

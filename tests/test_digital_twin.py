@@ -83,3 +83,17 @@ def test_geojson_export():
     line_features = [f for f in geo["features"] if f["geometry"]["type"] == "LineString"]
     assert len(point_features) == len(twin.assets)
     assert len(line_features) == twin.graph.number_of_edges()
+
+
+def test_safe_evacuation_routing_when_origin_in_hazards():
+    twin = CampDigitalTwin()
+    # Even if an origin shelter is mistakenly included in hazardous set, the routing engine must still find an escape route
+    threatened_shelters = ["SHELTER_S408"]
+    hazardous = {"SHELTER_S408", "WALL_BW07", "CULVERT_C14"}
+
+    routes = twin.find_safe_evacuation_routes(threatened_shelters, hazardous)
+    assert len(routes) == 1
+    assert routes[0]["shelter_id"] == "SHELTER_S408"
+    assert len(routes[0]["path_node_ids"]) >= 3
+    assert "WALL_BW07" not in routes[0]["path_node_ids"]
+

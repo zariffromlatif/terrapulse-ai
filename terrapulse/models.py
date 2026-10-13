@@ -183,7 +183,7 @@ class EvacuationPlan(BaseModel):
     origin_shelters: List[str]
     safe_zone_id: str
     safe_zone_name: str
-    waypoint_coordinates: List[Dict[str, float]]
+    waypoint_coordinates: List[Dict[str, Any]]
     estimated_transit_minutes: int
     avoided_hazard_zones: List[str]
     instructions_multilingual: Dict[str, str]

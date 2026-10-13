@@ -1,1 +1,1 @@
-"""Test suite package for ProofPath AI."""
+"""Test suite package for TerraPulse (CampTwin AI)."""
