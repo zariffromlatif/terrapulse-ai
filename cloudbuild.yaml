@@ -1,5 +1,5 @@
 steps:
-  # 1. Run unit test suite and benchmark validation
+  # 1. Run unit test suite and quantitative benchmark validation
   - name: 'python:3.12-slim'
     entrypoint: 'bash'
     args:
@@ -9,23 +9,23 @@ steps:
         pytest tests/
         python eval_benchmark.py
 
-  # 2. Build the container image
+  # 2. Build the TerraPulse container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/proofpath-repo/proofpath-ai:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/terrapulse-repo/terrapulse-ai:$COMMIT_SHA', '.']
 
-  # 3. Push the image to Container Registry / Artifact Registry
+  # 3. Push container image to Google Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/proofpath-repo/proofpath-ai:$COMMIT_SHA']
+    args: ['push', 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/terrapulse-repo/terrapulse-ai:$COMMIT_SHA']
 
-  # 4. Deploy to Google Cloud Run
+  # 4. Deploy to Google Cloud Run in Singapore / asia-southeast1
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
       - 'deploy'
-      - 'proofpath-ai'
+      - 'terrapulse-ai'
       - '--image'
-      - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/proofpath-repo/proofpath-ai:$COMMIT_SHA'
+      - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/terrapulse-repo/terrapulse-ai:$COMMIT_SHA'
       - '--region'
       - 'asia-southeast1'
       - '--platform'
@@ -33,6 +33,10 @@ steps:
       - '--allow-unauthenticated'
       - '--port'
       - '8080'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
 
 images:
-  - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/proofpath-repo/proofpath-ai:$COMMIT_SHA'
+  - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/terrapulse-repo/terrapulse-ai:$COMMIT_SHA'

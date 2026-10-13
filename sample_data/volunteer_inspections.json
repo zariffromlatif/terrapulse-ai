@@ -1,0 +1,40 @@
+[
+  {
+    "inspection_id": "INSP-CXB-001",
+    "volunteer_group": "Cyclone Preparedness Programme (CPP) Squad Alpha",
+    "timestamp": "2026-10-13T11:45:00Z",
+    "target_asset": "CULVERT_C14",
+    "audio_transcript_rohingya": "Culvert C-14 intake e bohut gura kachra ar paata jomi gese. Paani shob rasta ot uthi jaise.",
+    "audio_transcript_english": "Culvert C-14 inlet is 75% blocked by heavy silt, tree branches, and rubbish. Runoff is overtopping onto the main footpath.",
+    "defect_measurements": {
+      "siltation_percentage": 75.0,
+      "flow_cross_section_remaining_m2": 0.28,
+      "headwall_scour_cm": 15.0
+    }
+  },
+  {
+    "inspection_id": "INSP-CXB-002",
+    "volunteer_group": "Camp Site Management Field Volunteers",
+    "timestamp": "2026-10-13T11:50:00Z",
+    "target_asset": "WALL_BW07",
+    "audio_transcript_bengali": "বাঁশের রিটেইনিং দেয়াল বিডব্লিউ-০৭ সামনের দিকে ১৮.৫ ডিগ্রি ঝুঁকে গেছে। মাটি নরম হয়ে পিছলে পড়ছে।",
+    "audio_transcript_english": "Bamboo retaining wall BW-07 is deflecting forward at 18.5 degrees. Saturated soil behind it is slipping and bulging.",
+    "defect_measurements": {
+      "deflection_angle_degrees": 18.5,
+      "failure_threshold_degrees": 15.0,
+      "snapped_tie_wires_count": 6
+    }
+  },
+  {
+    "inspection_id": "INSP-CXB-003",
+    "volunteer_group": "WASH Community Mobilizers",
+    "timestamp": "2026-10-13T11:55:00Z",
+    "target_asset": "TUBEWELL_TW04",
+    "audio_transcript_english": "Deep tubewell TW-04 concrete apron has a 4.2cm structural crack right near the well-head casing. Runoff from the upper slope is ponding around the pump base.",
+    "defect_measurements": {
+      "crack_width_cm": 4.2,
+      "ponding_depth_cm": 8.0,
+      "fecal_proximity_violation_m": 22.1
+    }
+  }
+]

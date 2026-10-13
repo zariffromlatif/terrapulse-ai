@@ -3,10 +3,7 @@ uvicorn[standard]>=0.32.0
 pydantic>=2.10.0
 networkx>=3.2.0
 google-genai>=2.0.0
-reportlab>=4.2.0
-pypdf>=5.0.0
 streamlit>=1.40.0
 python-multipart>=0.0.12
 pytest>=8.0.0
 requests>=2.31.0
-

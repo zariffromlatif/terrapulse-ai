@@ -1,0 +1,1900 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "project": "TerraPulse CampTwin AI",
+    "block": "Camp 4 Block G",
+    "node_count": 41,
+    "edge_count": 41
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1534,
+          21.19882
+        ]
+      },
+      "properties": {
+        "id": "CULVERT_C14",
+        "name": "Culvert C-14 (Block G Main Drain)",
+        "asset_type": "culvert",
+        "elevation_m": 16.5,
+        "status": "normal",
+        "capacity": 150,
+        "population": 0,
+        "condition_score": 0.45,
+        "marker_color": "#f59e0b",
+        "catchment_m2": 4200,
+        "lining": "brick_kacha",
+        "nominal_flow_m3s": 3.8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1528,
+          21.1994
+        ]
+      },
+      "properties": {
+        "id": "CULVERT_C08",
+        "name": "Culvert C-08 (Upper Gully Discharge)",
+        "asset_type": "culvert",
+        "elevation_m": 22.0,
+        "status": "normal",
+        "capacity": 100,
+        "population": 0,
+        "condition_score": 0.85,
+        "marker_color": "#f59e0b",
+        "catchment_m2": 2100,
+        "lining": "pucca",
+        "nominal_flow_m3s": 2.4
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1541,
+          21.1979
+        ]
+      },
+      "properties": {
+        "id": "CULVERT_C22",
+        "name": "Culvert C-22 (Canal Outfall)",
+        "asset_type": "culvert",
+        "elevation_m": 13.2,
+        "status": "normal",
+        "capacity": 220,
+        "population": 0,
+        "condition_score": 0.9,
+        "marker_color": "#f59e0b",
+        "catchment_m2": 8500,
+        "lining": "reinforced_concrete",
+        "nominal_flow_m3s": 5.2
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1532,
+          21.19895
+        ]
+      },
+      "properties": {
+        "id": "WALL_BW07",
+        "name": "Bamboo Retaining Wall BW-07 (Terrace Cut)",
+        "asset_type": "retaining_wall",
+        "elevation_m": 24.5,
+        "status": "normal",
+        "capacity": 0,
+        "population": 0,
+        "condition_score": 0.4,
+        "marker_color": "#8b5cf6",
+        "height_m": 3.2,
+        "length_m": 28.0,
+        "deflection_angle_deg": 18.5,
+        "soil_type": "sandy_clay"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1525,
+          21.1998
+        ]
+      },
+      "properties": {
+        "id": "WALL_BW03",
+        "name": "Bamboo Retaining Wall BW-03 (Ridge Stabilizer)",
+        "asset_type": "retaining_wall",
+        "elevation_m": 34.0,
+        "status": "normal",
+        "capacity": 0,
+        "population": 0,
+        "condition_score": 0.88,
+        "marker_color": "#8b5cf6",
+        "height_m": 2.5,
+        "length_m": 18.0,
+        "deflection_angle_deg": 3.0,
+        "soil_type": "clay_loam"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1537,
+          21.1984
+        ]
+      },
+      "properties": {
+        "id": "WALL_BW12",
+        "name": "Bamboo Retaining Wall BW-12 (Slope Shoring)",
+        "asset_type": "retaining_wall",
+        "elevation_m": 19.8,
+        "status": "normal",
+        "capacity": 0,
+        "population": 0,
+        "condition_score": 0.75,
+        "marker_color": "#8b5cf6",
+        "height_m": 2.8,
+        "length_m": 22.0,
+        "deflection_angle_deg": 5.2,
+        "soil_type": "sandy_loam"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1531,
+          21.19888
+        ]
+      },
+      "properties": {
+        "id": "LATRINE_LP101",
+        "name": "Community Latrine Pit LP-101",
+        "asset_type": "latrine_pit",
+        "elevation_m": 23.8,
+        "status": "normal",
+        "capacity": 60,
+        "population": 0,
+        "condition_score": 0.5,
+        "marker_color": "#ef4444",
+        "sludge_volume_liters": 2850,
+        "pit_type": "twin_pit_pour_flush",
+        "fill_level_pct": 82
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1523,
+          21.1995
+        ]
+      },
+      "properties": {
+        "id": "LATRINE_LP102",
+        "name": "Latrine Cluster LP-102",
+        "asset_type": "latrine_pit",
+        "elevation_m": 32.5,
+        "status": "normal",
+        "capacity": 50,
+        "population": 0,
+        "condition_score": 0.82,
+        "marker_color": "#ef4444",
+        "sludge_volume_liters": 1600,
+        "pit_type": "twin_pit_pour_flush",
+        "fill_level_pct": 45
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1545,
+          21.1981
+        ]
+      },
+      "properties": {
+        "id": "LATRINE_LP108",
+        "name": "Latrine Unit LP-108",
+        "asset_type": "latrine_pit",
+        "elevation_m": 15.0,
+        "status": "normal",
+        "capacity": 40,
+        "population": 0,
+        "condition_score": 0.8,
+        "marker_color": "#ef4444",
+        "sludge_volume_liters": 1200,
+        "pit_type": "single_offset",
+        "fill_level_pct": 50
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15328,
+          21.19875
+        ]
+      },
+      "properties": {
+        "id": "TUBEWELL_TW04",
+        "name": "Deep Tubewell TW-04 (Zone Central)",
+        "asset_type": "tubewell",
+        "elevation_m": 17.2,
+        "status": "normal",
+        "capacity": 450,
+        "population": 450,
+        "condition_score": 0.85,
+        "marker_color": "#06b6d4",
+        "depth_m": 125.0,
+        "casing_status": "intact",
+        "apron_cracked": true,
+        "fecal_coliform_cfu_100ml": 0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1521,
+          21.2001
+        ]
+      },
+      "properties": {
+        "id": "TUBEWELL_TW09",
+        "name": "Deep Tubewell TW-09 (Ridge Health Hub)",
+        "asset_type": "tubewell",
+        "elevation_m": 36.0,
+        "status": "normal",
+        "capacity": 380,
+        "population": 380,
+        "condition_score": 0.95,
+        "marker_color": "#06b6d4",
+        "depth_m": 140.0,
+        "casing_status": "intact",
+        "apron_cracked": false,
+        "fecal_coliform_cfu_100ml": 0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1543,
+          21.1977
+        ]
+      },
+      "properties": {
+        "id": "TAPSTAND_TS12",
+        "name": "Gravity Tapstand TS-12",
+        "asset_type": "tubewell",
+        "elevation_m": 14.0,
+        "status": "normal",
+        "capacity": 300,
+        "population": 300,
+        "condition_score": 0.9,
+        "marker_color": "#06b6d4",
+        "source": "chlorinated_network",
+        "residual_chlorine_ppm": 0.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1518,
+          21.2004
+        ]
+      },
+      "properties": {
+        "id": "SAFEZONE_SZ01",
+        "name": "Camp 4 Primary Community Safe Haven & CiC Complex",
+        "asset_type": "safe_zone",
+        "elevation_m": 39.5,
+        "status": "normal",
+        "capacity": 1800,
+        "population": 0,
+        "condition_score": 1.0,
+        "marker_color": "#22c55e",
+        "structure": "reinforced_masonry",
+        "medical_kit": true,
+        "emergency_water_m3": 45.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1546,
+          21.1999
+        ]
+      },
+      "properties": {
+        "id": "SAFEZONE_SZ02",
+        "name": "Learning Center North (Secondary Safe Point)",
+        "asset_type": "safe_zone",
+        "elevation_m": 31.0,
+        "status": "normal",
+        "capacity": 650,
+        "population": 0,
+        "condition_score": 0.98,
+        "marker_color": "#22c55e",
+        "structure": "semi_pucca",
+        "solar_lighting": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1535,
+          21.1987
+        ]
+      },
+      "properties": {
+        "id": "DRAIN_J01",
+        "name": "Ravine Confluence Junction DJ-01",
+        "asset_type": "drainage_junction",
+        "elevation_m": 16.0,
+        "status": "normal",
+        "capacity": 0,
+        "population": 0,
+        "condition_score": 0.7,
+        "marker_color": "#3b82f6"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.153,
+          21.1992
+        ]
+      },
+      "properties": {
+        "id": "DRAIN_J02",
+        "name": "Mid-Slope Inflow Junction DJ-02",
+        "asset_type": "drainage_junction",
+        "elevation_m": 20.5,
+        "status": "normal",
+        "capacity": 0,
+        "population": 0,
+        "condition_score": 0.75,
+        "marker_color": "#3b82f6"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.152,
+          21.2002
+        ]
+      },
+      "properties": {
+        "id": "PATH_P01",
+        "name": "Main Access Ridge Trail Intersect",
+        "asset_type": "footpath",
+        "elevation_m": 37.8,
+        "status": "normal",
+        "capacity": 0,
+        "population": 0,
+        "condition_score": 1.0,
+        "marker_color": "#3b82f6"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1526,
+          21.1996
+        ]
+      },
+      "properties": {
+        "id": "PATH_P02",
+        "name": "Block G Upper Pathway",
+        "asset_type": "footpath",
+        "elevation_m": 28.4,
+        "status": "normal",
+        "capacity": 0,
+        "population": 0,
+        "condition_score": 1.0,
+        "marker_color": "#3b82f6"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.153,
+          21.199
+        ]
+      },
+      "properties": {
+        "id": "PATH_P03",
+        "name": "Block G Mid Terraced Steps",
+        "asset_type": "footpath",
+        "elevation_m": 23.0,
+        "status": "normal",
+        "capacity": 0,
+        "population": 0,
+        "condition_score": 1.0,
+        "marker_color": "#3b82f6"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1536,
+          21.1986
+        ]
+      },
+      "properties": {
+        "id": "PATH_P04",
+        "name": "Ravine Crossing Plank Way",
+        "asset_type": "footpath",
+        "elevation_m": 16.8,
+        "status": "normal",
+        "capacity": 0,
+        "population": 0,
+        "condition_score": 1.0,
+        "marker_color": "#3b82f6"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1542,
+          21.1997
+        ]
+      },
+      "properties": {
+        "id": "PATH_P05",
+        "name": "East Ridge Bypass Trail",
+        "asset_type": "footpath",
+        "elevation_m": 29.5,
+        "status": "normal",
+        "capacity": 0,
+        "population": 0,
+        "condition_score": 1.0,
+        "marker_color": "#3b82f6"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1522,
+          21.20005
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S401",
+        "name": "Shelter S-401 (Family 12)",
+        "asset_type": "shelter",
+        "elevation_m": 35.5,
+        "status": "normal",
+        "capacity": 6,
+        "population": 6,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 6,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15235,
+          21.19985
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S402",
+        "name": "Shelter S-402 (Family 14)",
+        "asset_type": "shelter",
+        "elevation_m": 33.2,
+        "status": "normal",
+        "capacity": 7,
+        "population": 7,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 7,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1525,
+          21.19965
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S403",
+        "name": "Shelter S-403 (Family 19)",
+        "asset_type": "shelter",
+        "elevation_m": 30.1,
+        "status": "normal",
+        "capacity": 5,
+        "population": 5,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 5,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15265,
+          21.19945
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S404",
+        "name": "Shelter S-404 (Family 22)",
+        "asset_type": "shelter",
+        "elevation_m": 27.5,
+        "status": "normal",
+        "capacity": 8,
+        "population": 8,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 8,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1528,
+          21.19925
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S405",
+        "name": "Shelter S-405 (Family 25)",
+        "asset_type": "shelter",
+        "elevation_m": 25.0,
+        "status": "normal",
+        "capacity": 6,
+        "population": 6,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 6,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1529,
+          21.1991
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S406",
+        "name": "Shelter S-406 (Family 28)",
+        "asset_type": "shelter",
+        "elevation_m": 24.2,
+        "status": "normal",
+        "capacity": 5,
+        "population": 5,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 5,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15298,
+          21.199
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S407",
+        "name": "Shelter S-407 (Family 31)",
+        "asset_type": "shelter",
+        "elevation_m": 23.5,
+        "status": "normal",
+        "capacity": 7,
+        "population": 7,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 7,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15312,
+          21.1989
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S408",
+        "name": "Shelter S-408 (Family 34)",
+        "asset_type": "shelter",
+        "elevation_m": 22.8,
+        "status": "normal",
+        "capacity": 6,
+        "population": 6,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 6,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15318,
+          21.19882
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S409",
+        "name": "Shelter S-409 (Family 38)",
+        "asset_type": "shelter",
+        "elevation_m": 21.5,
+        "status": "normal",
+        "capacity": 5,
+        "population": 5,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 5,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15322,
+          21.19875
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S410",
+        "name": "Shelter S-410 (Family 41)",
+        "asset_type": "shelter",
+        "elevation_m": 20.2,
+        "status": "normal",
+        "capacity": 8,
+        "population": 8,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 8,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15328,
+          21.19868
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S411",
+        "name": "Shelter S-411 (Family 45)",
+        "asset_type": "shelter",
+        "elevation_m": 19.1,
+        "status": "normal",
+        "capacity": 6,
+        "population": 6,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 6,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15335,
+          21.1986
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S412",
+        "name": "Shelter S-412 (Family 48)",
+        "asset_type": "shelter",
+        "elevation_m": 18.2,
+        "status": "normal",
+        "capacity": 7,
+        "population": 7,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 7,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15342,
+          21.19852
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S413",
+        "name": "Shelter S-413 (Family 52)",
+        "asset_type": "shelter",
+        "elevation_m": 17.6,
+        "status": "normal",
+        "capacity": 6,
+        "population": 6,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 6,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1535,
+          21.19845
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S414",
+        "name": "Shelter S-414 (Family 55)",
+        "asset_type": "shelter",
+        "elevation_m": 17.0,
+        "status": "normal",
+        "capacity": 5,
+        "population": 5,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 5,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.15358,
+          21.19838
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S415",
+        "name": "Shelter S-415 (Family 59)",
+        "asset_type": "shelter",
+        "elevation_m": 16.5,
+        "status": "normal",
+        "capacity": 8,
+        "population": 8,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 8,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1538,
+          21.1992
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S416",
+        "name": "Shelter S-416 (Family 62)",
+        "asset_type": "shelter",
+        "elevation_m": 23.8,
+        "status": "normal",
+        "capacity": 6,
+        "population": 6,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 6,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.154,
+          21.1994
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S417",
+        "name": "Shelter S-417 (Family 66)",
+        "asset_type": "shelter",
+        "elevation_m": 26.5,
+        "status": "normal",
+        "capacity": 7,
+        "population": 7,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 7,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1542,
+          21.1996
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S418",
+        "name": "Shelter S-418 (Family 70)",
+        "asset_type": "shelter",
+        "elevation_m": 29.0,
+        "status": "normal",
+        "capacity": 5,
+        "population": 5,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 5,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1539,
+          21.1988
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S419",
+        "name": "Shelter S-419 (Family 73)",
+        "asset_type": "shelter",
+        "elevation_m": 21.0,
+        "status": "normal",
+        "capacity": 6,
+        "population": 6,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 6,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1541,
+          21.1985
+        ]
+      },
+      "properties": {
+        "id": "SHELTER_S420",
+        "name": "Shelter S-420 (Family 78)",
+        "asset_type": "shelter",
+        "elevation_m": 18.5,
+        "status": "normal",
+        "capacity": 7,
+        "population": 7,
+        "condition_score": 0.9,
+        "marker_color": "#10b981",
+        "family_members": 7,
+        "bamboo_condition": "stable"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1534,
+            21.19882
+          ],
+          [
+            92.1535,
+            21.1987
+          ]
+        ]
+      },
+      "properties": {
+        "source": "CULVERT_C14",
+        "target": "DRAIN_J01",
+        "edge_type": "culvert_entry",
+        "distance_m": 16.9,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1534,
+            21.19882
+          ],
+          [
+            92.1536,
+            21.1986
+          ]
+        ]
+      },
+      "properties": {
+        "source": "CULVERT_C14",
+        "target": "PATH_P04",
+        "edge_type": "footpath",
+        "distance_m": 32.1,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1528,
+            21.1994
+          ],
+          [
+            92.15265,
+            21.19945
+          ]
+        ]
+      },
+      "properties": {
+        "source": "CULVERT_C08",
+        "target": "SHELTER_S404",
+        "edge_type": "drainage_bank",
+        "distance_m": 16.5,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1528,
+            21.1994
+          ],
+          [
+            92.153,
+            21.1992
+          ]
+        ]
+      },
+      "properties": {
+        "source": "CULVERT_C08",
+        "target": "DRAIN_J02",
+        "edge_type": "concrete_channel",
+        "distance_m": 30.4,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1541,
+            21.1979
+          ],
+          [
+            92.1536,
+            21.1986
+          ]
+        ]
+      },
+      "properties": {
+        "source": "CULVERT_C22",
+        "target": "PATH_P04",
+        "edge_type": "canal_path",
+        "distance_m": 93.5,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1541,
+            21.1979
+          ],
+          [
+            92.1543,
+            21.1977
+          ]
+        ]
+      },
+      "properties": {
+        "source": "CULVERT_C22",
+        "target": "TAPSTAND_TS12",
+        "edge_type": "piped_route",
+        "distance_m": 30.4,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1532,
+            21.19895
+          ],
+          [
+            92.153,
+            21.199
+          ]
+        ]
+      },
+      "properties": {
+        "source": "WALL_BW07",
+        "target": "PATH_P03",
+        "edge_type": "bamboo_steps",
+        "distance_m": 21.5,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1532,
+            21.19895
+          ],
+          [
+            92.1531,
+            21.19888
+          ]
+        ]
+      },
+      "properties": {
+        "source": "WALL_BW07",
+        "target": "LATRINE_LP101",
+        "edge_type": "path",
+        "distance_m": 13.0,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1525,
+            21.1998
+          ],
+          [
+            92.15235,
+            21.19985
+          ]
+        ]
+      },
+      "properties": {
+        "source": "WALL_BW03",
+        "target": "SHELTER_S402",
+        "edge_type": "terraced_steps",
+        "distance_m": 16.5,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1525,
+            21.1998
+          ],
+          [
+            92.1523,
+            21.1995
+          ]
+        ]
+      },
+      "properties": {
+        "source": "WALL_BW03",
+        "target": "LATRINE_LP102",
+        "edge_type": "footpath",
+        "distance_m": 39.3,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1537,
+            21.1984
+          ],
+          [
+            92.15358,
+            21.19838
+          ]
+        ]
+      },
+      "properties": {
+        "source": "WALL_BW12",
+        "target": "SHELTER_S415",
+        "edge_type": "slope_edge",
+        "distance_m": 12.6,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1545,
+            21.1981
+          ],
+          [
+            92.1543,
+            21.1977
+          ]
+        ]
+      },
+      "properties": {
+        "source": "LATRINE_LP108",
+        "target": "TAPSTAND_TS12",
+        "edge_type": "footpath",
+        "distance_m": 49.1,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.15328,
+            21.19875
+          ],
+          [
+            92.15322,
+            21.19875
+          ]
+        ]
+      },
+      "properties": {
+        "source": "TUBEWELL_TW04",
+        "target": "SHELTER_S410",
+        "edge_type": "access_path",
+        "distance_m": 6.2,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.15328,
+            21.19875
+          ],
+          [
+            92.1535,
+            21.1987
+          ]
+        ]
+      },
+      "properties": {
+        "source": "TUBEWELL_TW04",
+        "target": "DRAIN_J01",
+        "edge_type": "drainage_apron",
+        "distance_m": 23.5,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1521,
+            21.2001
+          ],
+          [
+            92.152,
+            21.2002
+          ]
+        ]
+      },
+      "properties": {
+        "source": "TUBEWELL_TW09",
+        "target": "PATH_P01",
+        "edge_type": "footpath",
+        "distance_m": 15.2,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1518,
+            21.2004
+          ],
+          [
+            92.152,
+            21.2002
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SAFEZONE_SZ01",
+        "target": "PATH_P01",
+        "edge_type": "reinforced_path",
+        "distance_m": 30.4,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1518,
+            21.2004
+          ],
+          [
+            92.1546,
+            21.1999
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SAFEZONE_SZ01",
+        "target": "SAFEZONE_SZ02",
+        "edge_type": "ridge_connector_paved",
+        "distance_m": 295.6,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1546,
+            21.1999
+          ],
+          [
+            92.1542,
+            21.1997
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SAFEZONE_SZ02",
+        "target": "PATH_P05",
+        "edge_type": "wide_paved_path",
+        "distance_m": 47.1,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1546,
+            21.1999
+          ],
+          [
+            92.1542,
+            21.1996
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SAFEZONE_SZ02",
+        "target": "SHELTER_S418",
+        "edge_type": "footpath",
+        "distance_m": 53.2,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1535,
+            21.1987
+          ],
+          [
+            92.1536,
+            21.1986
+          ]
+        ]
+      },
+      "properties": {
+        "source": "DRAIN_J01",
+        "target": "PATH_P04",
+        "edge_type": "drain_flank",
+        "distance_m": 15.2,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.153,
+            21.1992
+          ],
+          [
+            92.1538,
+            21.1992
+          ]
+        ]
+      },
+      "properties": {
+        "source": "DRAIN_J02",
+        "target": "SHELTER_S416",
+        "edge_type": "gully_steps",
+        "distance_m": 82.9,
+        "line_color": "#0284c7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.152,
+            21.2002
+          ],
+          [
+            92.1522,
+            21.20005
+          ]
+        ]
+      },
+      "properties": {
+        "source": "PATH_P01",
+        "target": "SHELTER_S401",
+        "edge_type": "footpath",
+        "distance_m": 26.6,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1526,
+            21.1996
+          ],
+          [
+            92.15235,
+            21.19985
+          ]
+        ]
+      },
+      "properties": {
+        "source": "PATH_P02",
+        "target": "SHELTER_S402",
+        "edge_type": "footpath",
+        "distance_m": 38.0,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1526,
+            21.1996
+          ],
+          [
+            92.1525,
+            21.19965
+          ]
+        ]
+      },
+      "properties": {
+        "source": "PATH_P02",
+        "target": "SHELTER_S403",
+        "edge_type": "footpath",
+        "distance_m": 11.8,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.153,
+            21.199
+          ],
+          [
+            92.1528,
+            21.19925
+          ]
+        ]
+      },
+      "properties": {
+        "source": "PATH_P03",
+        "target": "SHELTER_S405",
+        "edge_type": "footpath",
+        "distance_m": 34.7,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.153,
+            21.199
+          ],
+          [
+            92.1529,
+            21.1991
+          ]
+        ]
+      },
+      "properties": {
+        "source": "PATH_P03",
+        "target": "SHELTER_S406",
+        "edge_type": "footpath",
+        "distance_m": 15.2,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.153,
+            21.199
+          ],
+          [
+            92.1542,
+            21.1997
+          ]
+        ]
+      },
+      "properties": {
+        "source": "PATH_P03",
+        "target": "PATH_P05",
+        "edge_type": "cross_contour_path",
+        "distance_m": 146.7,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1522,
+            21.20005
+          ],
+          [
+            92.15235,
+            21.19985
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S401",
+        "target": "SHELTER_S402",
+        "edge_type": "footpath",
+        "distance_m": 27.1,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1525,
+            21.19965
+          ],
+          [
+            92.15265,
+            21.19945
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S403",
+        "target": "SHELTER_S404",
+        "edge_type": "footpath",
+        "distance_m": 27.1,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.15265,
+            21.19945
+          ],
+          [
+            92.1528,
+            21.19925
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S404",
+        "target": "SHELTER_S405",
+        "edge_type": "footpath",
+        "distance_m": 27.1,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1529,
+            21.1991
+          ],
+          [
+            92.15298,
+            21.199
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S406",
+        "target": "SHELTER_S407",
+        "edge_type": "footpath",
+        "distance_m": 13.9,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.15298,
+            21.199
+          ],
+          [
+            92.15312,
+            21.1989
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S407",
+        "target": "SHELTER_S408",
+        "edge_type": "footpath",
+        "distance_m": 18.3,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.15312,
+            21.1989
+          ],
+          [
+            92.15318,
+            21.19882
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S408",
+        "target": "SHELTER_S409",
+        "edge_type": "footpath",
+        "distance_m": 10.9,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.15318,
+            21.19882
+          ],
+          [
+            92.15322,
+            21.19875
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S409",
+        "target": "SHELTER_S410",
+        "edge_type": "footpath",
+        "distance_m": 8.8,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.15322,
+            21.19875
+          ],
+          [
+            92.15328,
+            21.19868
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S410",
+        "target": "SHELTER_S411",
+        "edge_type": "footpath",
+        "distance_m": 10.0,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.15328,
+            21.19868
+          ],
+          [
+            92.15335,
+            21.1986
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S411",
+        "target": "SHELTER_S412",
+        "edge_type": "footpath",
+        "distance_m": 11.5,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.15335,
+            21.1986
+          ],
+          [
+            92.15342,
+            21.19852
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S412",
+        "target": "SHELTER_S413",
+        "edge_type": "footpath",
+        "distance_m": 11.5,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.15342,
+            21.19852
+          ],
+          [
+            92.1535,
+            21.19845
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S413",
+        "target": "SHELTER_S414",
+        "edge_type": "footpath",
+        "distance_m": 11.4,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1535,
+            21.19845
+          ],
+          [
+            92.15358,
+            21.19838
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S414",
+        "target": "SHELTER_S415",
+        "edge_type": "footpath",
+        "distance_m": 11.4,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.1538,
+            21.1992
+          ],
+          [
+            92.154,
+            21.1994
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S416",
+        "target": "SHELTER_S417",
+        "edge_type": "footpath",
+        "distance_m": 30.4,
+        "line_color": "#64748b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            92.154,
+            21.1994
+          ],
+          [
+            92.1542,
+            21.1996
+          ]
+        ]
+      },
+      "properties": {
+        "source": "SHELTER_S417",
+        "target": "SHELTER_S418",
+        "edge_type": "footpath",
+        "distance_m": 30.4,
+        "line_color": "#64748b"
+      }
+    }
+  ]
+}

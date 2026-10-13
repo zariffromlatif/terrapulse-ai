@@ -1,84 +1,87 @@
-"""Unit and integration tests for FastAPI REST API endpoints."""
+"""Unit tests for TerraPulse FastAPI Server & REST Endpoints."""
 
-import io
 import pytest
-from starlette.testclient import TestClient
-from proofpath.api import app
+from fastapi.testclient import TestClient
+from terrapulse.api import app
+
+client = TestClient(app)
 
 
-@pytest.fixture
-def client():
-    return TestClient(app)
+def test_command_hud_endpoint():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "TERRAPULSE" in response.text
 
 
-def test_api_health(client):
-    res = client.get("/api/health")
-    assert res.status_code == 200
-    data = res.json()
+def test_health_check_endpoint():
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    data = response.json()
     assert data["status"] == "healthy"
-    assert data["service"] == "ProofPath AI"
-
-    # Verify static sample file serving
-    sample_res = client.get("/samples/bkash_transfer_slip.png")
-    assert sample_res.status_code == 200
-    assert len(sample_res.content) > 1000
+    assert data["service"] == "TerraPulse (CampTwin AI)"
+    assert data["google_cloud_region"] == "asia-southeast1"
 
 
-def test_api_case_analysis_and_downloads(client):
-    file1 = ("threat_chat.txt", b"Pay BDT 12000 urgently to 01712345678 within 30 min", "text/plain")
-    file2 = ("receipt.txt", b"TrxID: 998877 Amount: BDT 12,000.00 Date: 2026-10-12 12:00:00", "text/plain")
+def test_digital_twin_endpoints():
+    r_graph = client.get("/api/twin/graph")
+    assert r_graph.status_code == 200
+    data_g = r_graph.json()
+    assert data_g["node_count"] > 20
+    assert "assets" in data_g
 
-    res = client.post(
-        "/api/cases/analyze",
-        data={
-            "jurisdiction": "BANGLADESH",
-            "victim_name": "Test User",
-            "victim_contact": "+8801700112233",
-        },
-        files=[
-            ("files", file1),
-            ("files", file2),
-        ],
-    )
+    r_geo = client.get("/api/twin/geojson")
+    assert r_geo.status_code == 200
+    data_geo = r_geo.json()
+    assert data_geo["type"] == "FeatureCollection"
 
-    assert res.status_code == 200
-    data = res.json()
-    case_id = data["case_id"]
-    assert case_id is not None
-    assert data["total_loss_amount"] == 12000.0
-    assert data["total_loss_currency"] == "BDT"
-    assert len(data["evidence_items"]) == 2
+    r_twi = client.get("/api/twin/twi")
+    assert r_twi.status_code == 200
+    assert "twi_indices" in r_twi.json()
 
-    # Test GET case
-    get_res = client.get(f"/api/cases/{case_id}")
-    assert get_res.status_code == 200
-    assert get_res.json()["case_id"] == case_id
-
-    # Test PDF download
-    pdf_res = client.get(f"/api/cases/{case_id}/pdf")
-    assert pdf_res.status_code == 200
-    assert pdf_res.headers["content-type"] == "application/pdf"
-    assert pdf_res.content.startswith(b"%PDF-")
-
-    # Test ZIP download
-    zip_res = client.get(f"/api/cases/{case_id}/zip")
-    assert zip_res.status_code == 200
-    assert zip_res.headers["content-type"] == "application/zip"
-    assert len(zip_res.content) > 500
+    r_wash = client.get("/api/twin/wash-risk")
+    assert r_wash.status_code == 200
+    assert r_wash.json()["total_violations"] >= 1
 
 
-def test_api_intelligence_graph(client):
-    res = client.get("/api/intelligence/graph")
-    assert res.status_code == 200
-    data = res.json()
-    assert "nodes" in data
-    assert "edges" in data
-    assert data["node_count"] > 0
+def test_inspect_endpoint():
+    payload = {
+        "transcript": "Culvert C-14 has 75% silt blockage. Retaining wall BW-07 deflection 18.5 deg.",
+        "asset_hint": "CULVERT_C14",
+    }
+    response = client.post("/api/inspect", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["defects_detected"]) >= 2
+    assert data["risk_score"] > 0.5
 
 
-def test_api_benchmark_endpoint(client):
-    res = client.get("/api/benchmark/run")
-    assert res.status_code == 200
-    data = res.json()
-    assert "overall_benchmark_score" in data
-    assert data["overall_benchmark_score"] >= 85.0
+def test_cascade_simulate_endpoint():
+    payload = {
+        "gpm_rain_rate_mm_hr": 65.0,
+        "sentinel1_soil_saturation": 0.88,
+        "copernicus_dem_slope_deg": 22.5,
+    }
+    response = client.post("/api/cascade/simulate", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["cascade_probability"] > 0.8
+    assert len(data["stages"]) == 5
+
+
+def test_scenarios_and_benchmark_endpoints():
+    r_sc = client.get("/api/scenarios")
+    assert r_sc.status_code == 200
+    scenarios = r_sc.json()
+    assert len(scenarios) >= 4
+
+    # Run scenario
+    r_run = client.post("/api/scenarios/monsoon_65mm_camp4/run")
+    assert r_run.status_code == 200
+    data_run = r_run.json()
+    assert data_run["scenario_id"] == "monsoon_65mm_camp4"
+    assert "dispatch" in data_run
+
+    # Benchmark endpoint
+    r_bench = client.get("/api/benchmark")
+    assert r_bench.status_code == 200
+    assert r_bench.json()["overall_benchmark_score"] >= 85.0

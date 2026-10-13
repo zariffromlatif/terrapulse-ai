@@ -1,9 +1,0 @@
-[WhatsApp Message Thread]
-Sender: +8801719998877 (Display: "Bangladesh Bank Audit Desk")
-Date/Time: 2026-10-12 11:30:00
-
-Suspect: "Dear Customer, This is Inspector Kabir from Bangladesh Bank Cyber Fraud Cell. Your bKash account 01700112233 has been reported for suspicious international laundering transactions. A warrant will be issued and account frozen within 30 min unless emergency security verification is performed."
-
-Victim: "What should I do? This is my primary salary account!"
-
-Suspect: "To prevent immediate police seizure, you must immediately transfer 25,000 BDT to our central escrow verification wallet 01719998877. Once verified, this amount will be refunded within 1 hour. Do not disconnect the line."

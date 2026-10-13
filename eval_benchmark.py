@@ -1,46 +1,47 @@
 #!/usr/bin/env python3
-"""ProofPath AI - Fraud-Response Benchmark Suite (eval_benchmark.py).
+"""TerraPulse (CampTwin AI) - Quantitative Verification Benchmark Runner (eval_benchmark.py).
 
 Measures:
-1. Extraction accuracy (financial loss, currencies, transaction IDs, suspect indicators)
-2. Cross-document consistency & contradiction detection
-3. Fraud pattern classification & tactic detection
-4. Procedural response quality & statutory compliance
-5. Cross-case scam intelligence syndicate linking
+1. Multimodal defect extraction accuracy & parameter precision.
+2. Compound domino cascade prediction accuracy & time-to-failure physics.
+3. UN Sphere Humanitarian Standard audit sensitivity (WASH 30m separation).
+4. Micro-evacuation route safety & hazard avoidance.
+5. Autonomous agent swarm dispatch coherence & humanitarian standards adherence.
 """
 
 import sys
-import json
-from proofpath.benchmark import run_fraud_response_benchmark
-from proofpath.service import ProofPathService
+from terrapulse.benchmark import run_terrapulse_benchmark
+from terrapulse.service import TerraPulseService
 
 
 def main():
-    print("=" * 72)
-    print("  PROOFPATH AI - FRAUD-RESPONSE COMPREHENSIVE BENCHMARK (2026)")
-    print("=" * 72)
-    print("Initializing benchmark test scenarios (Bangladesh & Singapore)...")
+    print("=" * 76)
+    print("  TERRAPULSE (CAMPTWIN AI) - COMPOUND DISASTER INTERCEPTOR BENCHMARK")
+    print("  Google Cloud AI Builder Cup 2026 // Sustainability & Social Impact Track")
+    print("  Target: Cox's Bazar Informal Settlement (Kutupalong Camp 4 Block G)")
+    print("=" * 76)
+    print("Initializing benchmark test scenarios across hydro-meteorological regimes...")
 
-    service = ProofPathService()
-    report = run_fraud_response_benchmark(service)
+    service = TerraPulseService()
+    report = run_terrapulse_benchmark(service)
 
     print("\n--- BENCHMARK SCORECARD ---")
-    print(f"Total Evaluated Scenarios  : {report.total_cases}")
-    print(f"Passed Scenarios           : {report.passed_cases} / {report.total_cases}")
-    print("-" * 72)
-    print(f"1. Extraction Accuracy               : {report.extraction_accuracy}%")
-    print(f"2. Cross-Doc Consistency & Anomalies : {report.consistency_detection_score}%")
-    print(f"3. Fraud Pattern Classification      : {report.pattern_detection_score}%")
-    print(f"4. Procedural Statutory Compliance   : {report.procedural_quality_score}%")
-    print(f"5. Syndicate Intelligence Precision  : {report.syndicate_match_score}%")
-    print("-" * 72)
-    print(f"OVERALL COMPOSITE BENCHMARK SCORE    : {report.overall_benchmark_score}%")
-    print("=" * 72)
+    print(f"Total Evaluated Scenarios     : {report.total_evaluations}")
+    print(f"Passed Scenarios              : {report.passed_evaluations} / {report.total_evaluations}")
+    print("-" * 76)
+    print(f"1. Multimodal Defect Extraction Accuracy  : {report.defect_extraction_accuracy}%")
+    print(f"2. Compound Cascade Prediction Accuracy   : {report.cascade_prediction_accuracy}%")
+    print(f"3. UN Sphere WASH 30m Audit Sensitivity   : {report.sphere_compliance_sensitivity}%")
+    print(f"4. Micro-Evacuation Route Safety Score    : {report.evacuation_safety_score}%")
+    print(f"5. Agent Swarm Dispatch Coherence Score   : {report.agent_swarm_coherence_score}%")
+    print("-" * 76)
+    print(f"OVERALL COMPOSITE BENCHMARK SCORE         : {report.overall_benchmark_score}%")
+    print("=" * 76)
 
     print("\nScenario Breakdown:")
-    for detail in report.case_details:
+    for detail in report.scenario_details:
         status_str = "[PASS]" if detail["passed"] else "[FAIL]"
-        print(f"  {status_str} {detail['case_name']}")
+        print(f"  {status_str} {detail['name']} ({detail['case_id']})")
         for check, res in detail["checks"].items():
             print(f"         - {check}: {res}")
 

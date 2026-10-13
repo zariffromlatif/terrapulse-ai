@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TerraPulse // CampTwin AI - Autonomous Compound Disaster Interceptor</title>
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      50% { transform: scale(1.15); opacity: 0.4; }
+      100% { transform: scale(0.95); opacity: 0.9; }
+    }
+    .pulsing-hazard {
+      animation: pulse-ring 2s infinite ease-in-out;
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+    .leaflet-popup-content-wrapper {
+      background: #0f172a !important;
+      color: #f1f5f9 !important;
+      border: 1px solid #334155 !important;
+      border-radius: 8px !important;
+    }
+    .leaflet-popup-tip {
+      background: #0f172a !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-cyan-500 selection:text-white">
+  <!-- Top Navigation & Mission Banner -->
+  <header class="border-b border-slate-800 bg-slate-900/90 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+        <span class="inline-block w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+        <h1 class="text-xl font-bold tracking-wider bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
+          TERRAPULSE
+        </h1>
+        <span class="text-xs px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-mono">
+          CampTwin AI v2.6
+        </span>
+      </div>
+      <div class="hidden md:flex items-center space-x-2 text-xs text-slate-400 border-l border-slate-800 pl-4 font-mono">
+        <span>LOC:</span>
+        <span class="text-slate-200">Cox's Bazar, Kutupalong Camp 4 (Block G)</span>
+        <span class="text-slate-500">|</span>
+        <span>LAT: 21.1988°N LON: 92.1534°E</span>
+      </div>
+    </div>
+
+    <!-- Quick Scenario Presets -->
+    <div class="flex items-center space-x-2">
+      <label class="text-xs text-slate-400 hidden sm:inline">Scenario:</label>
+      <select id="scenarioSelector" onchange="loadScenario(this.value)" class="bg-slate-800 border border-slate-700 text-xs text-cyan-300 rounded px-2.5 py-1.5 focus:outline-none focus:border-cyan-500 font-mono">
+        <option value="monsoon_65mm_camp4">🚨 Monsoon 65mm/hr in Camp 4 Block G</option>
+        <option value="cyclone_sitrang_surge">🌀 Cyclone Sitrang Deluge (95mm/hr)</option>
+        <option value="moderate_premonsoon_shower">🌧️ Pre-Monsoon Storm (35mm/hr)</option>
+        <option value="dry_season_baseline">☀️ Dry Season Baseline Survey</option>
+      </select>
+      <button onclick="runInterception()" id="interceptionBtn" class="bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white text-xs font-semibold px-4 py-1.5 rounded shadow-lg shadow-red-950/40 transition flex items-center space-x-1.5 font-mono">
+        <span>⚡ 1-CLICK INTERCEPTION</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Live Telemetry Ticker -->
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-2 px-6 py-2.5 bg-slate-900/60 border-b border-slate-800/80 text-xs">
+    <div class="flex items-center space-x-2 bg-slate-900/80 p-2 rounded border border-slate-800">
+      <div class="p-1.5 rounded bg-blue-950 text-blue-400 font-mono">🛰️ GPM</div>
+      <div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">NASA Rain Rate</div>
+        <div class="text-sm font-bold text-blue-400 font-mono" id="telRain">65.0 mm/hr</div>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2 bg-slate-900/80 p-2 rounded border border-slate-800">
+      <div class="p-1.5 rounded bg-purple-950 text-purple-400 font-mono">📡 S1-SAR</div>
+      <div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Soil Saturation</div>
+        <div class="text-sm font-bold text-purple-400 font-mono" id="telSoil">88.0% (Pre-Saturated)</div>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2 bg-slate-900/80 p-2 rounded border border-slate-800">
+      <div class="p-1.5 rounded bg-amber-950 text-amber-400 font-mono">📐 DEM</div>
+      <div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Slope Stability</div>
+        <div class="text-sm font-bold text-amber-400 font-mono" id="telSlope">22.5° (Sandy Terrace)</div>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2 bg-slate-900/80 p-2 rounded border border-slate-800">
+      <div class="p-1.5 rounded bg-red-950 text-red-400 font-mono">💥 CASCADE</div>
+      <div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Domino Failure Risk</div>
+        <div class="text-sm font-bold text-red-400 font-mono" id="telRisk">94.2% CRITICAL</div>
+      </div>
+    </div>
+    <div class="col-span-2 md:col-span-1 flex items-center space-x-2 bg-slate-900/80 p-2 rounded border border-slate-800">
+      <div class="p-1.5 rounded bg-emerald-950 text-emerald-400 font-mono">🇺🇳 SPHERE</div>
+      <div>
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">WASH Compliance</div>
+        <div class="text-sm font-bold text-amber-400 font-mono" id="telSphere">1 VIOLATION (22.1m)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Multi-Panel Workspace -->
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 overflow-hidden">
+    <!-- Left Column: Map & Topographic Digital Twin (7 Cols) -->
+    <section class="lg:col-span-7 flex flex-col space-y-3">
+      <!-- Interactive Digital Twin Map -->
+      <div class="glass-panel rounded-xl p-3 flex-1 flex flex-col shadow-xl">
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold">🗺️ Cox's Bazar Camp 4 Topographic Hydro-Graph</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">HDX / OSM Real Footprints</span>
+          </div>
+          <div class="flex items-center space-x-3 text-[11px] text-slate-400">
+            <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span><span>Shelter</span></span>
+            <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span><span>Culvert</span></span>
+            <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span><span>Retaining Wall</span></span>
+            <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span><span>Latrine</span></span>
+            <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span><span>Tubewell</span></span>
+          </div>
+        </div>
+        <!-- Map Canvas -->
+        <div id="campMap" class="w-full flex-1 min-h-[420px] rounded-lg border border-slate-800"></div>
+        <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+          <div id="mapStatusText">Showing 27 settlement assets, 32 topological paths, and 1 active dynamic evacuation corridor.</div>
+          <div class="flex space-x-2">
+            <button onclick="centerMapOnHazard()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded text-[10px]">📍 Focus Hazard Zone</button>
+            <button onclick="toggleFlowVectors()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-blue-300 rounded text-[10px]">💧 Hydro Vectors</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multimodal Volunteer Inspection Viewport -->
+      <div class="glass-panel rounded-xl p-3 shadow-xl">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold">📷 Multimodal Inspection Feed</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-900 font-mono">Gemini 2.0 Flash Vision</span>
+          </div>
+          <span class="text-[11px] text-slate-400 font-mono" id="inspAssetId">Asset: WALL_BW07 & CULVERT_C14</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <!-- Synthetic Camera View with Bounding Box Overlay -->
+          <div class="relative bg-slate-900 rounded-lg border border-slate-800 p-2 flex flex-col items-center justify-center min-h-[140px] overflow-hidden">
+            <!-- Simulated Inspection Canvas Graphics -->
+            <svg class="w-full h-36 rounded bg-slate-950" viewBox="0 0 500 250">
+              <!-- Hill terrace slope -->
+              <polygon points="0,200 150,160 300,190 500,240 500,250 0,250" fill="#1e293b" />
+              <!-- Bamboo Retaining Wall -->
+              <rect x="180" y="80" width="140" height="90" fill="#78350f" opacity="0.8" transform="rotate(18 250 125)" rx="4" />
+              <!-- Bamboo struts -->
+              <line x1="190" y1="85" x2="210" y2="175" stroke="#d97706" stroke-width="4" />
+              <line x1="230" y1="85" x2="250" y2="175" stroke="#d97706" stroke-width="4" />
+              <line x1="270" y1="85" x2="290" y2="175" stroke="#d97706" stroke-width="4" />
+              <!-- Silt choke at culvert -->
+              <ellipse cx="380" cy="210" rx="45" ry="25" fill="#451a03" stroke="#b45309" stroke-width="2" />
+              <!-- Gemini Bounding Box 1: Retaining Wall Deflection -->
+              <rect x="160" y="65" width="160" height="120" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="4" />
+              <text x="165" y="60" fill="#ef4444" font-size="10" font-family="monospace">WALL_BW07 [Tilt: 18.5° | Shear Slip]</text>
+              <!-- Gemini Bounding Box 2: Culvert Siltation -->
+              <rect x="320" y="170" width="120" height="70" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4" />
+              <text x="325" y="165" fill="#f59e0b" font-size="10" font-family="monospace">CULVERT_C14 [Silt: 75% | Choked]</text>
+            </svg>
+            <div class="absolute bottom-2 left-2 text-[10px] bg-slate-900/90 px-2 py-0.5 rounded text-slate-300 font-mono">
+              CONF: 96% | Deflection: 18.5° (Critical)
+            </div>
+          </div>
+
+          <!-- Field Voice Note / Transcript & Telemetry -->
+          <div class="flex flex-col justify-between space-y-2">
+            <div class="bg-slate-900/90 rounded p-2.5 border border-slate-800 text-[11px] leading-relaxed">
+              <div class="text-[10px] uppercase font-bold text-cyan-400 font-mono mb-1">🎙️ CPP Field Audio Transcript (Rohingya Translated)</div>
+              <p class="text-slate-300 italic" id="inspTranscript">
+                "Culvert C-14 inlet is 75% blocked by heavy silt and debris. The bamboo retaining wall BW-07 uphill from shelters is bulging forward at 18.5 degrees. Deep tubewell TW-04 apron has severe cracking."
+              </p>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-[11px] font-mono">
+              <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+                <div class="text-slate-400 text-[10px]">WALL TILT ANGLE</div>
+                <div class="text-red-400 font-bold" id="inspTilt">18.5° (>15° Failure)</div>
+              </div>
+              <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+                <div class="text-slate-400 text-[10px]">CULVERT SILTATION</div>
+                <div class="text-amber-400 font-bold" id="inspSilt">75% Flow Throttled</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Compound Cascade Timeline & Autonomous Agent Swarm (5 Cols) -->
+    <section class="lg:col-span-5 flex flex-col space-y-3">
+      <!-- 5-Stage Domino Cascade Timeline -->
+      <div class="glass-panel rounded-xl p-3 shadow-xl">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-mono uppercase tracking-wider text-red-400 font-bold">⏱️ Compound Domino Cascade Timeline</span>
+          </div>
+          <span class="text-[11px] px-2 py-0.5 rounded bg-red-950 text-red-300 font-mono border border-red-900">
+            Window: <span id="cascadeWindow">25 min</span> to intercept
+          </span>
+        </div>
+
+        <!-- Domino Stages List -->
+        <div class="space-y-2 text-xs" id="cascadeStagesContainer">
+          <!-- Stage 1 -->
+          <div class="p-2.5 rounded-lg bg-red-950/40 border border-red-800/60 flex items-start space-x-2.5">
+            <span class="px-1.5 py-0.5 rounded bg-red-800 text-[10px] font-mono font-bold">T+15m</span>
+            <div class="flex-1">
+              <div class="font-bold text-red-300 flex justify-between">
+                <span>1. Culvert Hydraulic Choking</span>
+                <span class="text-[10px] text-red-400 font-mono">P: 98%</span>
+              </div>
+              <p class="text-[11px] text-slate-300 mt-0.5">Culvert C-14 throttled to 0.9 m³/s. Torrential runoff (3.8 m³/s) overtops channel into footpaths.</p>
+            </div>
+          </div>
+          <!-- Stage 2 -->
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-start space-x-2.5">
+            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono font-bold text-amber-400">T+45m</span>
+            <div class="flex-1">
+              <div class="font-bold text-amber-300 flex justify-between">
+                <span>2. Soil Surcharge & Pore Pressure Spike</span>
+                <span class="text-[10px] text-amber-400 font-mono">P: 95%</span>
+              </div>
+              <p class="text-[11px] text-slate-300 mt-0.5">Overtopping water infiltrates sandy terrace slope behind Wall BW-07, eliminating shear strength.</p>
+            </div>
+          </div>
+          <!-- Stage 3 -->
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-start space-x-2.5">
+            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono font-bold text-orange-400">T+1h10m</span>
+            <div class="flex-1">
+              <div class="font-bold text-orange-300 flex justify-between">
+                <span>3. Bamboo Wall Shear Collapse & Mudslide</span>
+                <span class="text-[10px] text-orange-400 font-mono">P: 95%</span>
+              </div>
+              <p class="text-[11px] text-slate-300 mt-0.5">450 m³ liquefied soil slides down 22° slope, threatening Shelters S-408 through S-415.</p>
+            </div>
+          </div>
+          <!-- Stage 4 -->
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-start space-x-2.5">
+            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono font-bold text-purple-400">T+1h55m</span>
+            <div class="flex-1">
+              <div class="font-bold text-purple-300 flex justify-between">
+                <span>4. Latrine LP-101 Scour & Bio-WASH Breach</span>
+                <span class="text-[10px] text-purple-400 font-mono">P: 94%</span>
+              </div>
+              <p class="text-[11px] text-slate-300 mt-0.5">2,850L fecal blackwater scours into gravity drainage gully, flowing downhill to Tubewell TW-04.</p>
+            </div>
+          </div>
+          <!-- Stage 5 -->
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-start space-x-2.5">
+            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono font-bold text-rose-500">T+24h</span>
+            <div class="flex-1">
+              <div class="font-bold text-rose-400 flex justify-between">
+                <span>5. Aquifer Contamination & Cholera Outbreak</span>
+                <span class="text-[10px] text-rose-400 font-mono">P: 92%</span>
+              </div>
+              <p class="text-[11px] text-slate-300 mt-0.5">Cracked apron enables well-head infiltration, placing 1,450 residents at risk of acute watery diarrhea.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Autonomous Agent Swarm Commands -->
+      <div class="glass-panel rounded-xl p-3 shadow-xl flex-1 flex flex-col">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-mono uppercase tracking-wider text-emerald-400 font-bold">🤖 Vertex AI Autonomous Agent Swarm</span>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono border border-emerald-900" id="swarmStatusBadge">
+            READY TO INTERCEPT
+          </span>
+        </div>
+
+        <!-- Agent Tabs -->
+        <div class="flex space-x-2 mb-2 text-xs border-b border-slate-800 pb-1">
+          <button onclick="switchAgentTab('tactical')" id="tabTactical" class="px-2.5 py-1 rounded bg-cyan-950 text-cyan-300 font-mono font-semibold border border-cyan-800">
+            Tactical Dispatch
+          </button>
+          <button onclick="switchAgentTab('wash')" id="tabWash" class="px-2.5 py-1 rounded bg-slate-900 text-slate-400 font-mono hover:text-slate-200">
+            WASH Protection
+          </button>
+          <button onclick="switchAgentTab('evac')" id="tabEvac" class="px-2.5 py-1 rounded bg-slate-900 text-slate-400 font-mono hover:text-slate-200">
+            Micro-Evacuation
+          </button>
+        </div>
+
+        <!-- Tab 1: Tactical Dispatch Agent Content -->
+        <div id="contentTactical" class="space-y-2 text-xs flex-1 overflow-y-auto max-h-[220px]">
+          <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+            <div class="flex justify-between items-center text-[11px] mb-1">
+              <span class="font-bold text-cyan-300">Mission Alpha: Emergency Culvert Desiltation</span>
+              <span class="px-1.5 py-0.5 rounded bg-red-950 text-red-400 font-mono font-bold">P1_IMMEDIATE</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mb-1.5">Mobilize CPP Drainage Squad Alpha to Culvert C-14 (21.1988°N, 92.1534°E) within 25 min to relieve choke point.</p>
+            <div class="text-[10px] text-slate-400 font-mono">
+              Tools: 4x Trenching Shovels, 2x Bamboo Debris Hooks, 25x Sandbags.
+            </div>
+          </div>
+          <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+            <div class="flex justify-between items-center text-[11px] mb-1">
+              <span class="font-bold text-cyan-300">Mission Beta: Retaining Wall Shoring</span>
+              <span class="px-1.5 py-0.5 rounded bg-red-950 text-red-400 font-mono font-bold">P1_IMMEDIATE</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mb-1.5">Deploy 12x Borak bamboo diagonal buttresses against Wall BW-07 toe before slope saturation failure.</p>
+            <div class="text-[10px] text-slate-400 font-mono">
+              Tools: 12x Borak Bamboo Struts, 40m Galvanized Tie Wire, 40x Sandbags.
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: WASH Protection Agent Content -->
+        <div id="contentWash" class="hidden space-y-2 text-xs flex-1 overflow-y-auto max-h-[220px]">
+          <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+            <div class="flex justify-between items-center text-[11px] mb-1">
+              <span class="font-bold text-cyan-300">Direct Intervention: Tubewell TW-04 Lock</span>
+              <span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono font-bold">LOCK_COMMAND_SENT</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mb-1.5">Padlock pump lever on Deep Tubewell TW-04 to immediately halt contaminated water abstraction.</p>
+            <div class="text-[10px] text-cyan-400 font-mono">
+              AquaTab Strips Required: 320 strips (3,200 tablets for 7-day household reserve)
+            </div>
+          </div>
+          <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+            <div class="font-bold text-cyan-300 text-[11px] mb-1">Multilingual Loudspeaker Advisory Broadcast</div>
+            <p class="text-[10px] text-slate-300 italic mb-1">Rohingya: "Boshir dhol ar maati bhasha shuru hoise. Tubewell TW-04 r paani no khao. Paani 3 minute uthali khana."</p>
+            <p class="text-[10px] text-slate-300 italic">Bengali: "সতর্কবার্তা: গভীর নলকূপ টিডব্লিউ-০৪ এর পানি পান করবেন না। পানি ৩ মিনিট ফুটিয়ে পান করুন।"</p>
+          </div>
+        </div>
+
+        <!-- Tab 3: Micro-Evacuation Agent Content -->
+        <div id="contentEvac" class="hidden space-y-2 text-xs flex-1 overflow-y-auto max-h-[220px]">
+          <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+            <div class="flex justify-between items-center text-[11px] mb-1">
+              <span class="font-bold text-emerald-300">Escape Corridor: East Ridge Bypass Trail</span>
+              <span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono font-bold">ROUTE_ACTIVE</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mb-1">Guiding 50 residents from Shelters S-408 through S-415 away from active mudslide path directly to Camp 4 Primary Safe Haven.</p>
+            <div class="text-[10px] text-slate-400 font-mono flex justify-between">
+              <span>Transit Dist: 185m</span>
+              <span>Est. Walking Time: 6 min</span>
+              <span>Elevation Gain: +18m</span>
+            </div>
+          </div>
+          <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+            <div class="text-[10px] font-mono text-amber-400 font-bold mb-1">AVOIDED HAZARD ZONES</div>
+            <div class="text-[10px] text-slate-300 leading-relaxed font-mono">
+              ❌ Ravine Confluence C-14 (Flash Torrent)<br/>
+              ❌ Retaining Wall BW-07 Toe (450m³ Mudslide Cone)<br/>
+              ❌ Latrine LP-101 Overflow Zone
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-2 pt-2 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400 font-mono">
+          <span>Swarm Coordination: Consensus Reached</span>
+          <span class="text-emerald-400 font-bold">100% UN SPHERE COMPLIANT</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Script for Map and Dynamic Interaction -->
+  <script>
+    let map;
+    let markersLayer;
+    let evacLine;
+    let hazardCircle;
+
+    const campAssets = [
+      { id: "CULVERT_C14", name: "Culvert C-14", type: "culvert", lat: 21.19882, lon: 92.15340, elev: 16.5, color: "#f59e0b" },
+      { id: "CULVERT_C08", name: "Culvert C-08", type: "culvert", lat: 21.19940, lon: 92.15280, elev: 22.0, color: "#f59e0b" },
+      { id: "CULVERT_C22", name: "Culvert C-22", type: "culvert", lat: 21.19790, lon: 92.15410, elev: 13.2, color: "#f59e0b" },
+      { id: "WALL_BW07", name: "Bamboo Wall BW-07", type: "retaining_wall", lat: 21.19895, lon: 92.15320, elev: 24.5, color: "#8b5cf6" },
+      { id: "WALL_BW03", name: "Bamboo Wall BW-03", type: "retaining_wall", lat: 21.19980, lon: 92.15250, elev: 34.0, color: "#8b5cf6" },
+      { id: "WALL_BW12", name: "Bamboo Wall BW-12", type: "retaining_wall", lat: 21.19840, lon: 92.15370, elev: 19.8, color: "#8b5cf6" },
+      { id: "LATRINE_LP101", name: "Latrine Pit LP-101", type: "latrine_pit", lat: 21.19888, lon: 92.15310, elev: 23.8, color: "#ef4444" },
+      { id: "LATRINE_LP102", name: "Latrine Cluster LP-102", type: "latrine_pit", lat: 21.19950, lon: 92.15230, elev: 32.5, color: "#ef4444" },
+      { id: "LATRINE_LP108", name: "Latrine Unit LP-108", type: "latrine_pit", lat: 21.19810, lon: 92.15450, elev: 15.0, color: "#ef4444" },
+      { id: "TUBEWELL_TW04", name: "Deep Tubewell TW-04", type: "tubewell", lat: 21.19875, lon: 92.15328, elev: 17.2, color: "#06b6d4" },
+      { id: "TUBEWELL_TW09", name: "Deep Tubewell TW-09", type: "tubewell", lat: 21.20010, lon: 92.15210, elev: 36.0, color: "#06b6d4" },
+      { id: "TAPSTAND_TS12", name: "Tapstand TS-12", type: "tubewell", lat: 21.19770, lon: 92.15430, elev: 14.0, color: "#06b6d4" },
+      { id: "SAFEZONE_SZ01", name: "Primary Safe Haven & CiC Complex", type: "safe_zone", lat: 21.20040, lon: 92.15180, elev: 39.5, color: "#22c55e" },
+      { id: "SAFEZONE_SZ02", name: "Learning Center North", type: "safe_zone", lat: 21.19990, lon: 92.15460, elev: 31.0, color: "#22c55e" },
+      // Shelters
+      { id: "SHELTER_S401", name: "Shelter S-401", type: "shelter", lat: 21.20005, lon: 92.15220, elev: 35.5, color: "#10b981" },
+      { id: "SHELTER_S405", name: "Shelter S-405", type: "shelter", lat: 21.19925, lon: 92.15280, elev: 25.0, color: "#10b981" },
+      { id: "SHELTER_S408", name: "Shelter S-408 (At Risk)", type: "shelter", lat: 21.19890, lon: 92.15312, elev: 22.8, color: "#e11d48" },
+      { id: "SHELTER_S409", name: "Shelter S-409 (At Risk)", type: "shelter", lat: 21.19882, lon: 92.15318, elev: 21.5, color: "#e11d48" },
+      { id: "SHELTER_S410", name: "Shelter S-410 (At Risk)", type: "shelter", lat: 21.19875, lon: 92.15322, elev: 20.2, color: "#e11d48" },
+      { id: "SHELTER_S415", name: "Shelter S-415 (At Risk)", type: "shelter", lat: 21.19838, lon: 92.15358, elev: 16.5, color: "#e11d48" }
+    ];
+
+    function initMap() {
+      // Centered on Cox's Bazar Camp 4 Block G
+      map = L.map('campMap', {
+        zoomControl: true,
+        attributionControl: false
+      }).setView([21.1992, 92.1532], 17);
+
+      // Dark style tile layer
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20,
+        subdomains: 'abcd'
+      }).addTo(map);
+
+      markersLayer = L.layerGroup().addTo(map);
+
+      // Add asset markers
+      campAssets.forEach(a => {
+        const marker = L.circleMarker([a.lat, a.lon], {
+          radius: a.type === 'safe_zone' ? 9 : 6,
+          fillColor: a.color,
+          color: '#ffffff',
+          weight: 1.5,
+          opacity: 1,
+          fillOpacity: 0.85
+        });
+
+        marker.bindPopup(`
+          <div class="text-xs">
+            <strong class="text-cyan-400">${a.name}</strong><br/>
+            <span class="text-slate-400">ID: ${a.id}</span><br/>
+            <span>Type: ${a.type}</span><br/>
+            <span>Elev: ${a.elev}m</span>
+          </div>
+        `);
+        markersLayer.addLayer(marker);
+      });
+
+      // Add hazard zone pulsing circle over C-14 / BW-07
+      hazardCircle = L.circle([21.19888, 92.15325], {
+        radius: 40,
+        color: '#ef4444',
+        fillColor: '#b91c1c',
+        fillOpacity: 0.35,
+        weight: 2,
+        dashArray: '4, 4'
+      }).addTo(map);
+      hazardCircle.bindPopup("<strong class='text-red-400'>CRITICAL HAZARD ZONE</strong><br/>Slope Failure & Silt Choke Cone");
+
+      // Add dynamic micro-evacuation green corridor line
+      const evacRoutePoints = [
+        [21.19890, 92.15312], // S-408
+        [21.19900, 92.15300], // Path P03
+        [21.19970, 92.15420], // East Ridge Bypass P05
+        [21.19990, 92.15460], // Safe Zone 02
+        [21.20040, 92.15180]  // Primary Safe Haven SZ-01
+      ];
+
+      evacLine = L.polyline(evacRoutePoints, {
+        color: '#10b981',
+        weight: 4,
+        dashArray: '8, 8',
+        opacity: 0.95
+      }).addTo(map);
+      evacLine.bindPopup("<strong class='text-emerald-400'>Dynamic Escape Corridor</strong><br/>Uphill East Ridge Trail to Safe Haven");
+    }
+
+    function centerMapOnHazard() {
+      map.setView([21.19888, 92.15325], 18, { animate: true });
+    }
+
+    function toggleFlowVectors() {
+      alert("Hydrological flow vectors active: 100% surface runoff routing through Culvert C-14 ravine confluence towards canal outfall.");
+    }
+
+    function switchAgentTab(tab) {
+      document.getElementById('tabTactical').className = 'px-2.5 py-1 rounded ' + (tab === 'tactical' ? 'bg-cyan-950 text-cyan-300 font-mono font-semibold border border-cyan-800' : 'bg-slate-900 text-slate-400 font-mono hover:text-slate-200');
+      document.getElementById('tabWash').className = 'px-2.5 py-1 rounded ' + (tab === 'wash' ? 'bg-cyan-950 text-cyan-300 font-mono font-semibold border border-cyan-800' : 'bg-slate-900 text-slate-400 font-mono hover:text-slate-200');
+      document.getElementById('tabEvac').className = 'px-2.5 py-1 rounded ' + (tab === 'evac' ? 'bg-cyan-950 text-cyan-300 font-mono font-semibold border border-cyan-800' : 'bg-slate-900 text-slate-400 font-mono hover:text-slate-200');
+
+      document.getElementById('contentTactical').style.display = tab === 'tactical' ? 'block' : 'none';
+      document.getElementById('contentWash').style.display = tab === 'wash' ? 'block' : 'none';
+      document.getElementById('contentEvac').style.display = tab === 'evac' ? 'block' : 'none';
+    }
+
+    async function loadScenario(scenarioId) {
+      try {
+        const resp = await fetch(`/api/scenarios/${scenarioId}/run`, { method: 'POST' });
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        // Update telemetry
+        document.getElementById('telRain').innerText = data.telemetry.gpm_rain_rate_mm_hr + ' mm/hr';
+        document.getElementById('telSoil').innerText = (data.telemetry.sentinel1_soil_saturation * 100).toFixed(0) + '% Saturation';
+        document.getElementById('telSlope').innerText = data.telemetry.copernicus_dem_slope_deg + '° Gradient';
+        document.getElementById('telRisk').innerText = (data.cascade.cascade_probability * 100).toFixed(1) + '% ' + (data.cascade.cascade_probability > 0.6 ? 'CRITICAL' : 'MODERATE');
+        document.getElementById('cascadeWindow').innerText = data.cascade.critical_interception_window_min + ' min';
+
+        // Update inspection text
+        document.getElementById('inspTranscript').innerText = data.inspection.defects_detected.map(d => d.volunteer_notes).join(' ');
+      } catch (e) {
+        console.error("Scenario load error", e);
+      }
+    }
+
+    function runInterception() {
+      const btn = document.getElementById('interceptionBtn');
+      btn.innerText = '✅ INTERCEPTION ACTIVE';
+      btn.className = 'bg-emerald-600 text-white text-xs font-semibold px-4 py-1.5 rounded shadow-lg transition flex items-center space-x-1.5 font-mono';
+      document.getElementById('swarmStatusBadge').innerText = 'MISSIONS DISPATCHED';
+      document.getElementById('swarmStatusBadge').className = 'text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono border border-cyan-800 animate-pulse';
+      alert("⚡ TerraPulse Interception Orders Dispatched!\n- Tactical CPP Crew mobilized to Culvert C-14\n- Tubewell TW-04 locked\n- 320 AquaTab strips distributed\n- Dynamic evacuation corridor opened to Primary Safe Haven.");
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initMap();
+    });
+  </script>
+</body>
+</html>

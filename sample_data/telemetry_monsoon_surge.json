@@ -1,0 +1,32 @@
+{
+  "station_id": "CXB-CAMP4-HYDRO-01",
+  "location": "Cox's Bazar, Kutupalong-Balukhali Camp 4 Block G",
+  "coordinates": {
+    "latitude": 21.19882,
+    "longitude": 92.15340
+  },
+  "timestamp": "2026-10-13T12:00:00Z",
+  "telemetry": {
+    "nasa_gpm_rain_rate_mm_hr": 65.0,
+    "precipitation_category": "Torrential Monsoon Downpour",
+    "sentinel1_sar_soil_saturation": 0.88,
+    "soil_moisture_regime": "Saturated Sandy Clay (Zero Infiltration Capacity)",
+    "copernicus_dem_slope_deg": 22.5,
+    "catchment_area_m2": 4200,
+    "estimated_surface_runoff_m3s": 3.82
+  },
+  "orbital_passes": [
+    {
+      "satellite": "NASA GPM Core Observatory",
+      "sensor": "Dual-frequency Precipitation Radar (DPR) / GMI",
+      "granule": "GPM_3IMERGDF_20261013",
+      "quality_flag": "VALIDATED"
+    },
+    {
+      "satellite": "Sentinel-1C SAR",
+      "sensor": "C-band Synthetic Aperture Radar (IW Mode)",
+      "pass": "Descending Orbit 142",
+      "coherence_loss_detected": true
+    }
+  ]
+}
