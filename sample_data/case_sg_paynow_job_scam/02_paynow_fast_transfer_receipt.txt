@@ -1,0 +1,11 @@
+DBS / POSB DIGIBANK - FAST / PAYNOW TRANSFER CONFIRMATION
+============================================================
+Reference Number       : FAST202610119882
+Transaction Date & Time: 11-Oct-2026 14:15:32 SGT
+Transferred From       : DBS Current Account ****1298
+Transferred To         : PayNow Mobile Number +6591234567
+Recipient Nickname     : Shopee Task Merchant
+Amount Transferred     : SGD 1,500.00
+Payment Purpose        : Other
+Status                 : Successful / Immediate Credit
+Instruction Mode       : Instant FAST Transfer

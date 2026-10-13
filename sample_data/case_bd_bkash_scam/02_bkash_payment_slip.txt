@@ -1,0 +1,12 @@
+bKash Statement & Transaction Receipt
+========================================
+Transaction ID (TrxID) : BL9A2K9Z9X
+Transaction Type       : Send Money (P2P)
+Amount Transferred     : BDT 25,000.00
+Sender Account         : 01700112233
+Recipient Wallet       : 01719998877
+Timestamp              : 2026-10-12 11:45:00
+Fee Charged            : BDT 5.00
+Balance Remaining      : BDT 142.50
+Status                 : Successful
+Channel                : bKash App v5.8.1

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProofPath AI - Financial Fraud Evidence Reconstruction & Response Agent</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">🛡️</div>
+      <div class="brand-text">
+        <h1>ProofPath AI</h1>
+        <p>Evidence-Backed Financial Fraud Response Agent</p>
+      </div>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-cloud">Google Cloud AI Builder Cup 2026</span>
+      <span class="badge" style="background:#1e293b; color:#38bdf8; border:1px solid #0284c7;">Gemini on Vertex AI / GenAI SDK</span>
+      <span id="apiStatusBadge" class="badge badge-risk-medium">API: ONLINE</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Ingestion & Configuration Card -->
+    <section class="upload-card">
+      <div class="demo-bar">
+        <span class="demo-title">⚡ Quick Preloaded Demo Cases:</span>
+        <button class="btn-demo" onclick="loadDemoCase('BD')">🇧🇩 Bangladesh bKash Impersonation Scam</button>
+        <button class="btn-demo" onclick="loadDemoCase('SG')">🇸🇬 Singapore PayNow Task / Job Scam</button>
+        <button class="btn-demo" onclick="loadDemoCase('ANOMALY')">⚠️ Backdated Anomaly Contradiction Case</button>
+      </div>
+
+      <form id="evidenceForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="jurisdictionSelect">Regulatory Jurisdiction</label>
+            <select id="jurisdictionSelect" class="form-control" name="jurisdiction">
+              <option value="BANGLADESH">Bangladesh (BB CIPC / MFS / CID Police)</option>
+              <option value="SINGAPORE">Singapore (MAS / SPF Anti-Scam / FIDReC)</option>
+              <option value="GENERAL">General / International Financial Crime</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="victimName">Complainant / Victim Name</label>
+            <input type="text" id="victimName" name="victim_name" class="form-control" value="Farhan Ahmed" required>
+          </div>
+          <div class="form-group">
+            <label for="victimContact">Complainant Contact</label>
+            <input type="text" id="victimContact" name="victim_contact" class="form-control" value="+8801700112233" required>
+          </div>
+        </div>
+
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+          <p style="font-size: 16px; font-weight: 600; margin-bottom: 6px;">📁 Drop Evidence Files Here or Click to Browse</p>
+          <p style="font-size: 12px; color: var(--text-muted);">Supports screenshots (PNG, JPG), payment receipts (PDF, text), WhatsApp/Telegram chat logs, audio voice transcripts</p>
+          <input type="file" id="fileInput" name="files" multiple style="display: none;" onchange="handleFileSelection(this)">
+          <div id="fileList" style="margin-top: 12px; font-size: 12px; color: var(--cyan);"></div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button type="submit" id="submitBtn" class="btn-primary">
+            <span>⚡ Reconstruct Incident & Build Dossier</span>
+          </button>
+          <span id="loadingSpinner" style="display: none; font-size: 13px; color: var(--cyan);">
+            ⚙️ Running Gemini Multimodal Extraction & Verification Engine...
+          </span>
+        </div>
+      </form>
+    </section>
+
+    <!-- Case Analysis Results Section -->
+    <section id="resultsSection" class="results-section">
+      <!-- High-level Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Total Verified Loss</div>
+          <div class="value" id="statLoss" style="color: #f87171;">BDT 0.00</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Assessed Risk & Threat Level</div>
+          <div class="value" id="statRisk">CRITICAL (95/100)</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Primary Scam Typology</div>
+          <div class="value" id="statPattern" style="font-size: 15px; font-weight: 600;">Authority Impersonation</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Syndicate / Cluster Matches</div>
+          <div class="value" id="statSyndicate" style="color: #fbbf24;">1 Detected</div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="tabs-header">
+        <button class="tab-btn active" onclick="switchTab('tabOverview')">🔍 Overview & Contradictions</button>
+        <button class="tab-btn" onclick="switchTab('tabTimeline')">⏱️ Chronology Timeline</button>
+        <button class="tab-btn" onclick="switchTab('tabGraph')">🕸️ Scam Intelligence Graph</button>
+        <button class="tab-btn" onclick="switchTab('tabEvidence')">📑 Evidence Manifest</button>
+        <button class="tab-btn" onclick="switchTab('tabRoadmap')">📋 Procedural Response</button>
+        <button class="tab-btn" onclick="switchTab('tabComplaints')">✉️ Complaint Letters</button>
+        <button class="tab-btn" onclick="switchTab('tabDownloads')">📦 Download Case Package</button>
+        <button class="tab-btn" onclick="switchTab('tabBenchmark')">📊 Benchmark Suite</button>
+      </div>
+
+      <!-- Tab 1: Overview & Contradictions -->
+      <div id="tabOverview" class="tab-content active">
+        <div class="content-card">
+          <div class="card-title">📝 Executive Incident Summary</div>
+          <p id="summaryText" style="font-size: 13.5px; color: #cbd5e1;"></p>
+        </div>
+
+        <div class="content-card">
+          <div class="card-title">⚠️ Forensic Contradictions & Irregularities</div>
+          <div id="contradictionsList"></div>
+        </div>
+
+        <div class="content-card">
+          <div class="card-title">🚨 Identified Red Flags & Coercion Tactics</div>
+          <ul id="redFlagsList" style="padding-left: 20px; font-size: 13px; color: #fca5a5;"></ul>
+        </div>
+      </div>
+
+      <!-- Tab 2: Chronology Timeline -->
+      <div id="tabTimeline" class="tab-content">
+        <div class="content-card">
+          <div class="card-title">⏱️ Step-by-Step Chronological Reconstruction</div>
+          <div class="timeline" id="timelineContainer"></div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Scam Intelligence Graph -->
+      <div id="tabGraph" class="tab-content">
+        <div class="content-card">
+          <div class="card-title">🕸️ Cross-Case Scam Intelligence Network Graph</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            Visualizes multi-case threat intelligence: connected cases (blue), phone lines (amber), wallets/accounts (emerald), domains (purple), and syndicate hubs (red).
+            <span style="color: var(--cyan); display: block; margin-top: 4px;">💡 Click and drag nodes to explore syndicate structure. Hover or click any node to highlight linked infrastructure and cases.</span>
+          </p>
+          <canvas id="graphCanvas"></canvas>
+          <div style="margin-top: 10px; display: flex; gap: 16px; font-size: 11px; color: var(--text-muted);">
+            <span>🔴 Syndicate Cluster</span>
+            <span>🔵 Victim Case</span>
+            <span>🟡 Phone Line</span>
+            <span>🟢 Wallet / Bank Account</span>
+            <span>🟣 Phishing Domain</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Evidence Manifest -->
+      <div id="tabEvidence" class="tab-content">
+        <div class="content-card">
+          <div class="card-title">📑 Evidence Exhibit Index & Hash Manifest</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Exhibit</th>
+                <th>Filename</th>
+                <th>Evidence Type</th>
+                <th>SHA-256 Digest</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="evidenceTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 5: Procedural Roadmap -->
+      <div id="tabRoadmap" class="tab-content">
+        <div class="content-card">
+          <div class="card-title">📋 Official Statutory Escalation Roadmap</div>
+          <div id="roadmapList"></div>
+        </div>
+      </div>
+
+      <!-- Tab 6: Complaint Letters -->
+      <div id="tabComplaints" class="tab-content">
+        <div class="content-card">
+          <div class="card-title">✉️ Pre-Filled Statutory Complaint Applications</div>
+          <div id="complaintsContainer"></div>
+        </div>
+      </div>
+
+      <!-- Tab 7: Download Case Package -->
+      <div id="tabDownloads" class="tab-content">
+        <div class="content-card" style="text-align: center; padding: 40px 20px;">
+          <h3 style="margin-bottom: 12px;">📥 Download Complete Complaint-Ready Evidence Package</h3>
+          <p style="color: var(--text-muted); font-size: 13px; max-width: 600px; margin: 0 auto 24px auto;">
+            Download an official court & bank ready packet including compiled PDF report, individual formal letters, SHA-256 evidence index manifest, and JSON payload.
+          </p>
+          <div style="display: flex; justify-content: center; gap: 16px;">
+            <a id="btnDownloadPdf" class="btn-primary" href="#" target="_blank">📄 Download PDF Dossier</a>
+            <a id="btnDownloadZip" class="btn-primary" style="background:#059669;" href="#" target="_blank">📦 Download Complete ZIP Packet</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 8: Benchmark Evaluation -->
+      <div id="tabBenchmark" class="tab-content">
+        <div class="content-card">
+          <div class="card-title">📊 Live Fraud-Response Evaluation Benchmark</div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+            Evaluates extraction precision, cross-document contradiction checks, statutory compliance, and syndicate linking across synthetic multi-jurisdiction benchmarks.
+          </p>
+          <button class="btn-primary" onclick="triggerBenchmark()" id="btnRunBenchmark">▶ Run Benchmark Suite</button>
+          <div id="benchmarkOutput" style="margin-top: 20px; display: none;"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
